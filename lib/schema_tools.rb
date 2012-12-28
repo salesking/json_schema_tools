@@ -2,7 +2,9 @@ require 'json'
 require 'schema_tools/version'
 require 'schema_tools/modules/read'
 require 'schema_tools/modules/hash'
+require 'schema_tools/modules/attributes'
 require 'schema_tools/reader'
+require 'schema_tools/cleaner'
 require 'schema_tools/hash'
 
 
