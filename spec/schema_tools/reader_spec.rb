@@ -3,15 +3,28 @@ require 'spec_helper'
 describe SchemaTools::Reader do
 
   context 'class methods' do
+
     after :each do
       SchemaTools::Reader.registry_reset
     end
+
     it 'should read a single schema' do
       schema = SchemaTools::Reader.read(:page)
       schema[:name].should == 'page'
       schema[:properties].should_not be_empty
       SchemaTools::Reader.registry.should_not be_empty
     end
+
+    it 'should read a schema with inheritance' do
+      schema = SchemaTools::Reader.read(:lead) # extends contact
+
+      SchemaTools::Reader.registry[:contact].should_not be_empty
+      SchemaTools::Reader.registry[:lead].should_not be_empty
+
+      schema[:properties][:first_name].should_not be_empty
+      schema[:properties][:lead_source].should_not be_empty
+    end
+
   end
 
   context 'instance methods' do

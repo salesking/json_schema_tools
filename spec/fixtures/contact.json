@@ -1,4 +1,4 @@
-{"type":"object",
+{ "type":"object",
   "title": "Contact",
   "name": "contact",
   "description": "A simple contact",

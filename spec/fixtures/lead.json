@@ -1,0 +1,13 @@
+{ "type":"object",
+  "title": "Lead",
+  "name": "lead",
+  "extends": "contact",
+  "description": "A lead, inherits fields from contact schema",
+  "properties":{
+    "lead_source":{
+      "description": "Where did the person come from",
+      "type":"string",
+      "maxLength": 255
+    }
+  }
+}

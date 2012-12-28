@@ -31,12 +31,21 @@ module SchemaTools
       # @param [String|Symbol] schema name to be read from schema path directory
       # @param [String] path
       # @return[HashWithIndifferentAccess] schema as hash
-      def read(schema, path=nil)
-        schema = schema.to_sym
-        return registry[schema] if registry[schema]
-        file_path = File.join(path || SchemaTools.schema_path, "#{schema}.json")
+      def read(schema_name, path=nil)
+        schema_name = schema_name.to_sym
+        return registry[schema_name] if registry[schema_name]
+        file_path = File.join(path || SchemaTools.schema_path, "#{schema_name}.json")
         plain_data = File.open(file_path, 'r'){|f| f.read}
-        registry[schema] = ActiveSupport::JSON.decode(plain_data).with_indifferent_access
+        schema = ActiveSupport::JSON.decode(plain_data).with_indifferent_access
+        if schema[:extends]
+          extends = schema[:extends].is_a?(Array) ? schema[:extends] : [ schema[:extends] ]
+          extends.each do |ext_name|
+            ext = read(ext_name, path)
+            # current schema props win
+            schema[:properties] = ext[:properties].merge(schema[:properties])
+          end
+        end
+        registry[ schema_name ] = schema
       end
 
       # Read all available schemas from a given path(folder) and return
