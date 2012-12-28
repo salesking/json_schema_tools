@@ -1,6 +1,6 @@
 # JSON Schema Tools
 
-{<img src="https://secure.travis-ci.org/salesking/json_schema_tools.png?branch=master" alt="Build Status" />}[http://travis-ci.org/salesking/json_schema_tools]
+[![Build Status](https://travis-ci.org/salesking/json_schema_tools.png?branch=master)](https://travis-ci.org/salesking/json_schema_tools)
 
 Set of tools to help working with JSON Schemata:
 
