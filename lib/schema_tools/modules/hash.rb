@@ -42,7 +42,7 @@ module SchemaTools
         real_class_name = obj.class.name.split('::').last.underscore
         class_name =  opts[:class_name] || real_class_name
 
-        return obj if ['array', 'hash'].include? class_name
+        return obj if ['Array', 'Hash'].include? class_name
 
         data = {}
         # get schema
@@ -52,16 +52,16 @@ module SchemaTools
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
             data[field] = [] # always set an empty array
-            if rel_objects = obj.send( field )
+            if obj.respond_to?( field ) && rel_objects = obj.send( field )
               rel_objects.each do |rel_obj|
-                data[field] << to_hash_from_schema(rel_obj, version)
+                data[field] << from_schema(rel_obj, opts)
               end
             end
           elsif prop['type'] == 'object' # a singular related object
             data[field] = nil # always set empty val
-            if rel_obj = obj.send( field )
+            if obj.respond_to?( field ) && rel_obj = obj.send( field )
               #dont nest field to prevent => client=>{client=>{data} }
-              data[field] = to_hash_from_schema(rel_obj, version)
+              data[field] = from_schema(rel_obj, opts)
             end
           else # a simple field is only added if the object knows it
             data[field] = obj.send(field) if obj.respond_to?(field)
