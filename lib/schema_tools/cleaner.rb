@@ -22,7 +22,8 @@ module SchemaTools
         setters += opts[:keep] if opts[:keep] && opts[:keep].is_a?(Array)
         # kick readonly
         params.delete_if { |k,v| !setters.include?("#{k}")  }
-        #convert to type in schema
+        #convert to type in schema,
+        # atm. only strings since number can vary float, int, BigDec
         params.each do |k,v|
           if schema[:properties]["#{k}"]['type'] == 'string' && !v.is_a?(String)
             params[k] = "#{v}"

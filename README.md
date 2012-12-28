@@ -6,9 +6,8 @@ Set of tools to help working with JSON Schemata:
 
 * read schema files into a ruby hash
 * add schema properties to a class
-* convert a model(class instance) into it's schema markup
+* convert any object into it's schema json markup
 * clean parameters according to a schema (e.g. in an api controller)
-
 
 ## Usage
 
@@ -16,7 +15,7 @@ Hook the gem into your app
 
     gem 'json_schema_tools'
 
-### Read Schema
+## Read Schema
 
 Before the fun begins, with any of the tools, one or multiple JSON schema files
 must be available(read into a hash). So first provide a base path where the
@@ -44,15 +43,15 @@ Don't like the global path and registry? Go local:
     reader.registry
 
 
-### Object to Schema
+## Object to Schema
 
 A schema provides a (public) contract about an object definition. Therefore an
 internal object is converted to it's schema version on delivery(API access).
 First the object is converted to a hash containing only the properties(keys)
 from its schema definition. Afterwards it is a breeze to convert this hash into
-JSON.
+JSON, with your favorite generator.
 
-Following uses client.json schema(same as client.class name) inside the global
+Following uses client.json schema(same as peter.class name) inside the global
 schema_path and adds properties to the clients_hash simply calling
 client.send('property-name'):
 
@@ -61,7 +60,7 @@ client.send('property-name'):
     #=> "client"=>{"id"=>12, "name"=> "Peter", "email"=>"",..} # whatever else you have as properties
     # to_json is up to you .. or your rails controller
 
-#### Customise the resulting Hash:
+### Customise Schema Hash
 
 Only use some fields e.g. to save bandwidth
 
@@ -79,6 +78,34 @@ Use a custom schema path
     client_hash = SchemaTools::Hash.from_schema(peter, path: 'path-to/json-files/')
     #=> "client"=>{"id"=>12, "name"=> "Peter"}
 
+## Parameter cleaning
+
+Hate people spamming your api with wrong object fields? Use the Cleaner to
+check incoming params.
+
+For example in a client controller
+
+    def create
+      SchemaTools::Cleaner.clean_params!(:client, params[:client])
+      # params[:client] now only has keys defined as writable in client.json schema
+      #..create and save client
+    end
+
+## Object attributes from Schema
+
+The use-case here is to add methods, defined in schema properties, to an object.
+Very usefull if you are building a API client and don't want to manually add
+methods to you local classes .. like people NOT using JSON schema
+
+    class Contact
+      include SchemaTools::Modules::Attributes
+      has_schema_attrs :client
+    end
+
+    contact = Client.new
+    contact.last_name = 'Rambo'
+    # raw access
+    contact.schema_attrs
 
 ## Test
 
