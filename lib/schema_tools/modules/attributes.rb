@@ -12,8 +12,11 @@ module SchemaTools
 
       module ClassMethods
 
-        def has_schema_attrs(schema)
-          schema = SchemaTools::Reader.read(schema)
+        # @param [Symbol|String] schema name
+        # @param [Hash<Symbol|String>] opts
+        # @options opts [String] :path schema path
+        def has_schema_attrs(schema, opts={})
+          schema = SchemaTools::Reader.read(schema, opts[:path])
           # make getter / setter
           schema[:properties].each do |key, val|
             # getter

@@ -11,7 +11,7 @@ module SchemaTools
       #
       # @param [String|Symbol] obj_name of the object/schema
       # @param [Hash{String|Symbol=>Mixed}] params properties for the object
-      # @param [Object] opts
+      # @param [Hash] opts
       # @options opts [Array<String|Symbol>] :keep properties not being kicked
       # even if defined as readonly
       def clean_params!(obj_name, params, opts={})

@@ -12,35 +12,30 @@ module SchemaTools
       # object-to-api-markup workflow
       #
       # === Example
+      #
       #  obj = Invoice.new(:title =>'hello world', :number=>'4711')
       #
-      #  obj_hash = SchemaTools::Hash.from_schema(obj, 'v1.0')
+      #  obj_hash = SchemaTools::Hash.from_schema(obj)
       #   => { 'invoice' =>{'title'=>'hello world', 'number'=>'4711' } }
       #
-      #  obj_hash = Schema.to_hash_from_schema(obj, 'v1.0', :fields=>['title'])
+      #  obj_hash = Schema.to_hash_from_schema(obj, fields: ['title'])
       #   => { 'invoice' =>{'title'=>'hello world' } }
       #
-      #  obj_hash = Schema.to_hash_from_schema(obj, 'v1.0', :class_name=>:document)
+      #  obj_hash = Schema.to_hash_from_schema(obj, class_name: :document)
       #   => { 'document' =>{'title'=>'hello world' } }
       #
-      # === Parameter
-      # obj<Object>:: An ruby object which is returned as hash
-      # version<String>:: the schema version, must be a valid folder name see
-      # #self.read
-      # opts<Hash{Symbol=>Mixed} >:: additional options
-      #
-      # ==== opts Parameter
-      # class_name<String|Symbol>:: Name of the class to use as hash key. Should be
-      # a lowered, underscored name and it MUST have an existing schema file.
+      # @param [Object] obj which is returned as hash
+      # @param [Hash{Symbol=>Mixed}] opts additional options
+      # @options opts [String|Symbol] :class_name used as hash key. Should be
+      # a lowercase underscored name and it MUST have an existing schema file.
       # Use it to override the default, which is obj.class.name
-      # fields<Array[String]>:: Fields/properties to return. If not set all
-      # schema's properties are used.
+      # @options opts [Array<String>] :fields to return. If not set all schema
+      # properties are used.
+      # @options opts [String] :path of the schema files overriding global one
       #
-      # === Return
-      # <Hash{String=>{String=>Mixed}}>:: The object as hash:
-      # { invoice =>{'title'=>'hello world', 'number'=>'4711' } }
-      # @param [Object] obj
-      # @param [Object] opts
+      # @return [Hash{String=>{String=>Mixed}}] The object as hash:
+      #   { 'invoice' => {'title'=>'hello world', 'number'=>'4711' } }
+      #
       def from_schema(obj, opts={})
         fields = opts[:fields]
         # get objects class name without inheritance
@@ -51,7 +46,7 @@ module SchemaTools
 
         data = {}
         # get schema
-        schema = SchemaTools::Reader.read(class_name)
+        schema = SchemaTools::Reader.read(class_name, opts[:path])
         # iterate over the defined schema fields
         schema['properties'].each do |field, prop|
           next if fields && !fields.include?(field)

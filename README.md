@@ -18,13 +18,13 @@ Hook the gem into your app
 
 ### Read Schema
 
-Before the fun begins with any of the tools one or multiple JSON schema files
-must be read(into a hash). So first provide a base path where the .json files
-can be found:
+Before the fun begins, with any of the tools, one or multiple JSON schema files
+must be available(read into a hash). So first provide a base path where the
+schema.json files are located.
 
     SchemaTools.schema_path = '/path/to/schema-json-files'
 
-No you can read a single or multiple schemas:
+Now you can read a single or multiple schemas:
 
     schema = SchemaTools::Reader.read :client
     # read all *.json files in schema path
@@ -32,7 +32,7 @@ No you can read a single or multiple schemas:
     # see schema cached in registry
     SchemaTools::Reader.registry[:client]
 
-Read files from another path?
+Read files from a custom path?
 
     schema = SchemaTools::Reader.read :client, 'my/path/to/json-files'
     schemata = SchemaTools::Reader.read_all 'my/path/to/json-files'
@@ -44,30 +44,48 @@ Don't like the global path and registry? Go local:
     reader.registry
 
 
-## Object to schema markup
+### Object to Schema
 
-A schema provides a (public) contract about an object definition. It is
-therefore a common task to convert an internal object to its schema version.
-Before the object can be represented as a json string, it is converted to a
-hash containing only the properties(keys) from its schema definition:
+A schema provides a (public) contract about an object definition. Therefore an
+internal object is converted to it's schema version on delivery(API access).
+First the object is converted to a hash containing only the properties(keys)
+from its schema definition. Afterwards it is a breeze to convert this hash into
+JSON.
 
-Following uses client.json schema(same as client.class name) from global
+Following uses client.json schema(same as client.class name) inside the global
 schema_path and adds properties to the clients_hash simply calling
 client.send('property-name'):
 
-  peter = Client.new name: 'Peter'
-  client_hash = SchemaTools::Hash.from_schema(peter)
-  # to_json is up to you .. or your rails controller
+    peter = Client.new name: 'Peter'
+    client_hash = SchemaTools::Hash.from_schema(peter)
+    #=> "client"=>{"id"=>12, "name"=> "Peter", "email"=>"",..} # whatever else you have as properties
+    # to_json is up to you .. or your rails controller
 
-TODO: explain Options for parsing:
-* custom class name
-* fields include/exclude
-* custom schema name
+#### Customise the resulting Hash:
+
+Only use some fields e.g. to save bandwidth
+
+    client_hash = SchemaTools::Hash.from_schema(peter, fields:['id', 'name'])
+    #=> "client"=>{"id"=>12, "name"=> "Peter"}
+
+Use a custom schema name e.g. to represent a client as contact. Assumes you also
+have a schema named contact.json
+
+    client_hash = SchemaTools::Hash.from_schema(peter, class_name: 'contact')
+    #=> "contact"=>{"id"=>12, "name"=> "Peter"}
+
+Use a custom schema path
+
+    client_hash = SchemaTools::Hash.from_schema(peter, path: 'path-to/json-files/')
+    #=> "client"=>{"id"=>12, "name"=> "Peter"}
+
 
 ## Test
 
-  bundle install
-  bundle exec rake spec
+Only runs on Ruby 1.9
+
+    bundle install
+    bundle exec rake spec
 
 
 Copyright 2012-1013, Georg Leciejewski, MIT License
