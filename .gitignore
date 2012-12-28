@@ -1,0 +1,10 @@
+.rvmrc
+coverage
+rdoc/*
+pkg/*
+.DS_Store
+Gemfile.lock
+.yardoc
+doc/
+tmp/
+*.*~
