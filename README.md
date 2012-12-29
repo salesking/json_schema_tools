@@ -6,7 +6,7 @@ Set of tools to help working with JSON Schemata:
 
 * read schema files into a ruby hash
 * add schema properties to a class
-* convert any object into it's schema json markup
+* convert any object into it's schema JSON markup
 * clean parameters according to a schema (e.g. in an api controller)
 
 ## Usage
@@ -23,12 +23,16 @@ schema.json files are located.
 
     SchemaTools.schema_path = '/path/to/schema-json-files'
 
-Now you can read a single or multiple schemas:
+Read a single schema:
 
     schema = SchemaTools::Reader.read :client
-    # read all *.json files in schema path
+
+Read multiple schemas, all *.json files in schema path
+
     schemata = SchemaTools::Reader.read_all
-    # see schema cached in registry
+
+Schemata are cached in registry
+
     SchemaTools::Reader.registry[:client]
 
 Read files from a custom path?
@@ -43,7 +47,7 @@ Don't like the global path and registry? Go local:
     reader.registry
 
 
-## Object to Schema
+## Object to Schema JSON
 
 A schema provides a (public) contract about an object definition. Therefore an
 internal object is converted to it's schema version on delivery(API access).

@@ -41,8 +41,8 @@ module SchemaTools
         # get objects class name without inheritance
         real_class_name = obj.class.name.split('::').last.underscore
         class_name =  opts[:class_name] || real_class_name
-
-        return obj if ['Array', 'Hash'].include? class_name
+        # directly return array & hash values
+        return obj if ['array', 'hash'].include? class_name
 
         data = {}
         # get schema
