@@ -8,6 +8,25 @@
       "description": "Where did the person come from",
       "type":"string",
       "maxLength": 255
+    },
+    "links_clicked":{
+      "description": "Timestamps of clicks. Just an example to test nested array values without object reference",
+      "type":"array",
+      "properties":{
+        "type": "string"
+      }
+    },
+    "conversion":{
+      "description": "Just an example to test nested object value without object reference",
+      "type":"object",
+      "properties":{
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        }
+      }
     }
   }
 }

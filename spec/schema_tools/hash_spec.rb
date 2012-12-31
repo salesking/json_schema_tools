@@ -2,7 +2,7 @@ require 'spec_helper'
 
 class Client
   attr_accessor :first_name, :last_name, :addresses, :id
-end
+  end
 
 describe SchemaTools::Hash do
 
@@ -40,6 +40,41 @@ describe SchemaTools::Hash do
       hash['client']['id'].should == client.id
       hash['client']['first_name'].should be_nil
     end
+  end
+
+  context 'with plain nested values' do
+
+    class Lead < Client
+      attr_accessor :links_clicked, :conversion
+    end
+
+    class Conversion
+      attr_accessor :from, :to
+    end
+
+
+    let(:lead){Lead.new}
+    before :each do
+      lead.links_clicked = ['2012-12-12', '2012-12-15', '2012-12-16']
+      conversion = Conversion.new
+      conversion.from = 'whatever'
+      conversion.to = 'whatever'
+      lead.conversion = conversion
+      @hash = SchemaTools::Hash.from_schema(lead)
+    end
+    after :each do
+      SchemaTools::Reader.registry_reset
+    end
+
+    it 'should create array with values' do
+      @hash['lead']['links_clicked'].should == lead.links_clicked
+    end
+
+    it 'should create object with values' do
+      @hash['lead']['conversion']['from'].should == lead.conversion.from
+      @hash['lead']['conversion']['to'].should == lead.conversion.to
+    end
+
   end
 end
 

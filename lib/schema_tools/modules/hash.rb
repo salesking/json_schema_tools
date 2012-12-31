@@ -40,7 +40,7 @@ module SchemaTools
         fields = opts[:fields]
         # get objects class name without inheritance
         real_class_name = obj.class.name.split('::').last.underscore
-        class_name =  opts[:class_name] || real_class_name
+        class_name = opts[:class_name] || real_class_name
         # directly return array & hash values
         return obj if ['array', 'hash'].include? class_name
 
@@ -50,19 +50,37 @@ module SchemaTools
         # iterate over the defined schema fields
         schema['properties'].each do |field, prop|
           next if fields && !fields.include?(field)
+
           if prop['type'] == 'array'
+
             data[field] = [] # always set an empty array
             if obj.respond_to?( field ) && rel_objects = obj.send( field )
               rel_objects.each do |rel_obj|
-                data[field] << from_schema(rel_obj, opts)
+                data[field] << if prop['properties'] && prop['properties']['$ref']
+                                  #got schema describing the objects
+                                  from_schema(rel_obj, opts)
+                                else
+                                  rel_obj
+                                end
               end
             end
+
           elsif prop['type'] == 'object' # a singular related object
+
             data[field] = nil # always set empty val
             if obj.respond_to?( field ) && rel_obj = obj.send( field )
-              #dont nest field to prevent => client=>{client=>{data} }
-              data[field] = from_schema(rel_obj, opts)
+              if prop['properties'] && prop['properties']['$ref']
+                data[field] = from_schema(rel_obj, opts)
+              else
+                # NO recursion directly get values from related object. Does
+                # NOT allow deeper nesting so you MUST define an own schema to be save
+                data[field] = {}
+                prop['properties'].each do |fld, prp|
+                  data[field][fld] = rel_obj.send(fld) if obj.respond_to?(field)
+                end
+              end
             end
+
           else # a simple field is only added if the object knows it
             data[field] = obj.send(field) if obj.respond_to?(field)
           end
