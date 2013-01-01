@@ -4,12 +4,12 @@ require 'schema_tools/version'
 
 Gem::Specification.new do |s|
   s.name        = 'json_schema_tools'
-  s.version     = SchemaBuilder::VERSION
+  s.version     = SchemaTools::VERSION
   s.authors     = ['Georg Leciejewski']
   s.email       = ['gl@salesking.eu']
-  s.homepage    = 'http://www.salesking.eu/dev'
-  s.summary     = %q{JSON Schema API tools.}
-  s.description = %q{Want to create a JSON Schema powered API? This toolset provides methods to read schemata, render objects as defined in schema, clean parameters according to schema, ...}
+  s.homepage    = 'https://github.com/salesking/json_schema_tools'
+  s.summary     = %q{JSON Schema API tools for server and client side}
+  s.description = %q{Want to create or read a JSON Schema powered API? This toolset provides methods to read schemata, render objects as defined in schema, clean parameters according to schema, ...}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

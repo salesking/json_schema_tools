@@ -1,3 +1,3 @@
-module SchemaBuilder
+module SchemaTools
   VERSION = '0.0.6'
 end
