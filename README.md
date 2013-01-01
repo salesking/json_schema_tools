@@ -97,7 +97,7 @@ For example in a client controller
 
 ## Object attributes from Schema
 
-The use-case here is to add methods, defined in schema properties, to an object.
+Add methods, defined in schema properties, to an existing class.
 Very usefull if you are building a API client and don't want to manually add
 methods to you local classes .. like people NOT using JSON schema
 
@@ -111,10 +111,11 @@ methods to you local classes .. like people NOT using JSON schema
     # raw access
     contact.schema_attrs
 
-## Objects from Schema - KlassFactory
+## Classes from Schema - KlassFactory
 
 Use the KlassFactory to directly create classes, with all attributes from a
-schema. The classes are named after each schema[name] found in from global path.
+schema. Instead of adding attributes to an existing class like in above example.
+The classes are named after each schema's [name] (in global path).
 So lets assume you have a 'client.json' schema with a name attribute in it, for
 the following examples:
 
@@ -123,19 +124,16 @@ the following examples:
     client.name = 'Mändy'
 
 
-Rather like a namespace? Good idea, but the class or module must be defined.
+Rather like a namespace? Good idea, but don't forget the class or module must
+be defined.
 
-    module SalesKing; end
     SchemaTools::KlassFactory.build namespace: SalesKing
     client = SalesKing::Client.new
 
-Add a custom schema reader
+Add a custom schema reader most likely usefull in conjunction with a custom path
 
     reader = SchemaTools::Reader.new
-    reader.path = HappyPdf::Schema.path
-    SchemaTools::KlassFactory.build reader: reader
-
-
+    SchemaTools::KlassFactory.build reader: reader, path: HappyPdf::Schema.path
 
 ## Real world examples
 

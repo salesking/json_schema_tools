@@ -8,9 +8,10 @@ module SchemaTools
       # Build classes from schema inside the given namespace. Uses all classes
       # found in schema path
       #
-      # @param [String|Symbol|Module] namespace of the new classes e.g. MyCustomNamespace::MySchemaClass
       # @param [Hash] opts
       # @options opts [SchemaTools::Reader] :reader to use instead of global one
+      # @options opts [SchemaTools::Reader] :path to schema files instead of global one
+      # @options opts [SchemaTools::Reader] :namespace of the new classes e.g. MyCustomNamespace::MySchemaClass
       def build(opts={})
         reader = opts[:reader] || SchemaTools::Reader
         schemata = reader.read_all( opts[:path] || SchemaTools.schema_path )
