@@ -111,6 +111,38 @@ methods to you local classes .. like people NOT using JSON schema
     # raw access
     contact.schema_attrs
 
+## Objects from Schema - KlassFactory
+
+Use the KlassFactory to directly create classes, with all attributes from a
+schema. The classes are named after each schema[name] found in from global path.
+So lets assume you have a 'client.json' schema with a name attribute in it, for
+the following examples:
+
+    SchemaTools::KlassFactory.build
+    client = Client.new
+    client.name = 'Mändy'
+
+
+Rather like a namespace? Good idea, but the class or module must be defined.
+
+    module SalesKing; end
+    SchemaTools::KlassFactory.build namespace: SalesKing
+    client = SalesKing::Client.new
+
+Add a custom schema reader
+
+    reader = SchemaTools::Reader.new
+    reader.path = HappyPdf::Schema.path
+    SchemaTools::KlassFactory.build reader: reader
+
+
+
+## Real world examples
+
+* [HappyPdf json schema](https://github.com/happyPDF/happypdf_json_schema) .. api gem will follow
+* [DocTag ruby gem](https://github.com/docTag/doctag_rb) and [DocTag json-schema](https://github.com/docTag/doctag_json_schema)
+* [SalesKing json schema](https://github.com/salesking/sk_api_schema)
+
 ## Test
 
 Only runs on Ruby 1.9
