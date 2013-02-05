@@ -120,8 +120,10 @@ So lets assume you have a 'client.json' schema with a name attribute in it, for
 the following examples:
 
     SchemaTools::KlassFactory.build
-    client = Client.new
-    client.name = 'Mändy'
+    client = Client.new first_name: 'Heinz'
+    client.name = 'Schultz'
+    client.valid?
+    client.errors.full_messages
 
 
 Rather like a namespace? Good idea, but don't forget the class or module must
