@@ -1,7 +1,7 @@
 {"type":"object",
   "title": "client",
   "name": "client",
-  "description": "A client as seen by SalesKing",
+  "description": "A client in SalesKing",
   "properties":{
     "id":{
       "description":"Unique identifier - UUID",
@@ -164,6 +164,8 @@
     },
     "cash_discount":{
       "description": "Default cash discount for new invoices.",
+      "maximum": 100,
+      "minimum": 0,
       "type":"number"
     },
     "due_days":{

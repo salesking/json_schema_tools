@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 class TestNamespaceKlass
-  # for schema classes
+  # namepsace for schema classes
 end
 
 module TestNamespaceModule
@@ -24,6 +24,42 @@ describe SchemaTools::KlassFactory do
       SchemaTools::KlassFactory.build
       expect { Client.new }.to_not raise_error
       expect { Lead.new }.to_not raise_error
+    end
+
+  end
+
+  context 'with validations' do
+    it 'should add validations' do
+      SchemaTools::KlassFactory.build
+      client = Client.new
+      client.valid?
+      client.errors[:organisation][0].should include 'blank'
+    end
+
+    it 'should build with params' do
+      SchemaTools::KlassFactory.build
+      client = Client.new organisation: 'SalesKing'
+      client.valid?
+      client.errors.should be_blank
+    end
+
+    it 'should validate number maximum and minimum' do
+      SchemaTools::KlassFactory.build
+      client = Client.new cash_discount: 100, organisation: 'SalesKing'
+      client.should be_valid
+      #to big
+      client.cash_discount = 101
+      client.valid?
+      client.errors.full_messages[0].should include('less_than_or_equal_to')
+      # to small
+      client.cash_discount = -1
+      client.valid?
+      client.errors.full_messages[0].should include('greater_than_or_equal_to')
+    end
+
+    it 'should raise with invalid params' do
+      SchemaTools::KlassFactory.build
+      expect { Client.new id: 'SalesKing' }.to raise_error NoMethodError
     end
 
   end

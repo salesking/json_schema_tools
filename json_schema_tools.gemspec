@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'json'
   s.add_dependency 'activesupport'
+  s.add_dependency 'activemodel'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'simplecov'
