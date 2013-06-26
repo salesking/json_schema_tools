@@ -1,6 +1,24 @@
 require 'spec_helper'
 
 describe SchemaTools::Reader do
+  let(:ruby_schema) do
+    {
+      "type"=> "object",
+      "name"=> "numbers",
+      "properties"=> {
+        "numbers"=> {
+          "type"=> "array",
+          "items"=> {
+            "type"=> "number",
+            "minimum"=> 1,
+            "maximum"=> 100
+          },
+          "additionalProperties"=> false
+        }
+      },
+      "additionalProperties"=> false
+    }
+  end
 
   context 'class methods' do
 
@@ -25,6 +43,17 @@ describe SchemaTools::Reader do
       schema[:properties][:lead_source].should_not be_empty
     end
 
+    it 'should read a schema from a Ruby Hash' do
+      schema = SchemaTools::Reader.read(:numbers, ruby_schema)
+
+      SchemaTools::Reader.registry[:numbers].should_not be_empty
+
+      schema[:properties][:numbers].should_not be_empty
+    end
+
+    it 'should enforce correct parameter usage' do
+      expect { SchemaTools::Reader.read(:contact, []) }.to raise_error ArgumentError
+    end
   end
 
   context 'instance methods' do
@@ -36,6 +65,12 @@ describe SchemaTools::Reader do
       schema[:name].should == 'client'
       schema[:properties].should_not be_empty
       reader.registry[:client].should_not be_empty
+    end
+
+    it 'should read a single schema from Ruby Hash' do
+      schema = reader.read(:numbers, ruby_schema)
+      schema[:name].should == 'numbers'
+      schema[:properties].should_not be_empty
     end
 
     it 'should populate instance registry' do
@@ -51,7 +86,9 @@ describe SchemaTools::Reader do
       SchemaTools::Reader.registry.should be_empty
     end
 
+    it 'should enforce correct parameter usage' do
+      expect { reader.read(:client, []) }.to raise_error ArgumentError
+    end
   end
-
 end
 
