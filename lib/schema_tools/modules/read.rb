@@ -29,13 +29,25 @@ module SchemaTools
       # round-trips. The cache can be resented with #registry_reset
       #
       # @param [String|Symbol] schema name to be read from schema path directory
-      # @param [String] path
+      # @param [String|Hash] either the path to retrieve schema_name from,
+      #                      or a Schema in Ruby hash form
       # @return[HashWithIndifferentAccess] schema as hash
-      def read(schema_name, path=nil)
+      def read(schema_name, path_or_schema=nil)
         schema_name = schema_name.to_sym
         return registry[schema_name] if registry[schema_name]
-        file_path = File.join(path || SchemaTools.schema_path, "#{schema_name}.json")
-        plain_data = File.open(file_path, 'r'){|f| f.read}
+
+        if path_or_schema.is_a? ::Hash
+          path       = nil
+          plain_data = path_or_schema.to_json
+        elsif path_or_schema.is_a?(::String) || path_or_schema.nil?
+          path       = path_or_schema
+          file_path  = File.join(path || SchemaTools.schema_path, "#{schema_name}.json")
+        else
+          raise ArgumentError, "Second parameter must be a path or a schema!"
+        end
+
+        plain_data ||= File.open(file_path, 'r'){|f| f.read}
+
         schema = ActiveSupport::JSON.decode(plain_data).with_indifferent_access
         if schema[:extends]
           extends = schema[:extends].is_a?(Array) ? schema[:extends] : [ schema[:extends] ]
