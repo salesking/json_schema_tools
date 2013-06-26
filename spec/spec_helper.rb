@@ -17,3 +17,5 @@ end
 
 # set global json schema path for examples
 SchemaTools.schema_path = File.expand_path('../fixtures', __FILE__)
+
+puts "Testing with ActiveModel Version: #{ActiveModel.version rescue ActiveModel::VERSION::STRING}"

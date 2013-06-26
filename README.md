@@ -21,31 +21,48 @@ Before the fun begins, with any of the tools, one or multiple JSON schema files
 must be available(read into a hash). So first provide a base path where the
 schema.json files are located.
 
-    SchemaTools.schema_path = '/path/to/schema-json-files'
+```ruby
+SchemaTools.schema_path = '/path/to/schema-json-files'
+```
 
 Read a single schema:
 
-    schema = SchemaTools::Reader.read :client
+```ruby
+schema = SchemaTools::Reader.read :client
+```
+
+Read a schema from an existing Ruby hash:
+
+```ruby
+schema = SchemaTools::Reader.read :client, { ... }
+```
 
 Read multiple schemas, all *.json files in schema path
 
-    schemata = SchemaTools::Reader.read_all
+```ruby
+schemata = SchemaTools::Reader.read_all
+```
 
 Schemata are cached in registry
 
-    SchemaTools::Reader.registry[:client]
+```ruby
+SchemaTools::Reader.registry[:client]
+```
 
 Read files from a custom path?
 
-    schema = SchemaTools::Reader.read :client, 'my/path/to/json-files'
-    schemata = SchemaTools::Reader.read_all 'my/path/to/json-files'
+```ruby
+schema = SchemaTools::Reader.read :client, 'my/path/to/json-files'
+schemata = SchemaTools::Reader.read_all 'my/path/to/json-files'
+```
 
 Don't like the global path and registry? Go local:
 
-    reader = SchemaTools::Reader.new
-    reader.read :client, 'from/path'
-    reader.registry
-
+```ruby
+reader = SchemaTools::Reader.new
+reader.read :client, 'from/path'
+reader.registry
+```
 
 ## Object to Schema JSON
 
@@ -59,28 +76,36 @@ Following uses client.json schema(same as peter.class name) inside the global
 schema_path and adds properties to the clients_hash simply calling
 client.send('property-name'):
 
-    peter = Client.new name: 'Peter'
-    client_hash = SchemaTools::Hash.from_schema(peter)
-    #=> "client"=>{"id"=>12, "name"=> "Peter", "email"=>"",..} # whatever else you have as properties
-    # to_json is up to you .. or your rails controller
+```ruby
+peter = Client.new name: 'Peter'
+client_hash = SchemaTools::Hash.from_schema(peter)
+#=> "client"=>{"id"=>12, "name"=> "Peter", "email"=>"",..} # whatever else you have as properties
+# to_json is up to you .. or your rails controller
+```
 
 ### Customise Schema Hash
 
 Only use some fields e.g. to save bandwidth
 
-    client_hash = SchemaTools::Hash.from_schema(peter, fields:['id', 'name'])
-    #=> "client"=>{"id"=>12, "name"=> "Peter"}
+```ruby
+client_hash = SchemaTools::Hash.from_schema(peter, fields:['id', 'name'])
+#=> "client"=>{"id"=>12, "name"=> "Peter"}
+```
 
 Use a custom schema name e.g. to represent a client as contact. Assumes you also
 have a schema named contact.json
 
-    client_hash = SchemaTools::Hash.from_schema(peter, class_name: 'contact')
-    #=> "contact"=>{"id"=>12, "name"=> "Peter"}
+```ruby
+client_hash = SchemaTools::Hash.from_schema(peter, class_name: 'contact')
+#=> "contact"=>{"id"=>12, "name"=> "Peter"}
+```
 
 Use a custom schema path
 
-    client_hash = SchemaTools::Hash.from_schema(peter, path: 'path-to/json-files/')
-    #=> "client"=>{"id"=>12, "name"=> "Peter"}
+```ruby
+client_hash = SchemaTools::Hash.from_schema(peter, path: 'path-to/json-files/')
+#=> "client"=>{"id"=>12, "name"=> "Peter"}
+```
 
 ## Parameter cleaning
 
@@ -89,11 +114,13 @@ check incoming params.
 
 For example in a client controller
 
-    def create
-      SchemaTools::Cleaner.clean_params!(:client, params[:client])
-      # params[:client] now only has keys defined as writable in client.json schema
-      #..create and save client
-    end
+```ruby
+def create
+  SchemaTools::Cleaner.clean_params!(:client, params[:client])
+  # params[:client] now only has keys defined as writable in client.json schema
+  #..create and save client
+end
+```
 
 ## Object attributes from Schema
 
@@ -101,15 +128,17 @@ Add methods, defined in schema properties, to an existing class.
 Very usefull if you are building a API client and don't want to manually add
 methods to you local classes .. like people NOT using JSON schema
 
-    class Contact
-      include SchemaTools::Modules::Attributes
-      has_schema_attrs :client
-    end
+```ruby
+class Contact
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs :client
+end
 
-    contact = Client.new
-    contact.last_name = 'Rambo'
-    # raw access
-    contact.schema_attrs
+contact = Client.new
+contact.last_name = 'Rambo'
+# raw access
+contact.schema_attrs
+```
 
 ## Classes from Schema - KlassFactory
 
@@ -119,36 +148,51 @@ The classes are named after each schema's [name] (in global path).
 So lets assume you have a 'client.json' schema with a name attribute in it, for
 the following examples:
 
-    SchemaTools::KlassFactory.build
-    client = Client.new first_name: 'Heinz'
-    client.name = 'Schultz'
-    client.valid?
-    client.errors.full_messages
-
+```ruby
+SchemaTools::KlassFactory.build
+client = Client.new first_name: 'Heinz'
+client.name = 'Schultz'
+client.valid?
+client.errors.full_messages
+```
 
 Rather like a namespace? Good idea, but don't forget the class or module must
 be defined.
 
-    SchemaTools::KlassFactory.build namespace: SalesKing
-    client = SalesKing::Client.new
+```ruby
+SchemaTools::KlassFactory.build namespace: SalesKing
+client = SalesKing::Client.new
+```
 
 Add a custom schema reader most likely usefull in conjunction with a custom path
 
-    reader = SchemaTools::Reader.new
-    SchemaTools::KlassFactory.build reader: reader, path: HappyPdf::Schema.path
+```ruby
+reader = SchemaTools::Reader.new
+SchemaTools::KlassFactory.build reader: reader, path: HappyPdf::Schema.path
+```
 
 ## Real world examples
 
 * [HappyPdf json schema](https://github.com/happyPDF/happypdf_json_schema) .. api gem will follow
 * [DocTag ruby gem](https://github.com/docTag/doctag_rb) and [DocTag json-schema](https://github.com/docTag/doctag_json_schema)
 * [SalesKing json schema](https://github.com/salesking/sk_api_schema)
+* .. Your UseCase here
 
 ## Test
 
-Only runs on Ruby 1.9
+Only runs on Ruby 1.9 and by default uses most recent ActiveModel version (>3).
 
     bundle install
-    bundle exec rake spec
+    rake spec
 
+Testing with different ActiveModel / ActiveSupport Versions:
+
+    RAILS_VERSION=3.1 bundle install
+    rake spec
+    # or if already installed
+    RAILS_VERSION=4 rake spec
+
+The RAILS_VERSION switch sets the version of the gems in the Gemfile and is only
+usefull in test env.
 
 Copyright 2012-1013, Georg Leciejewski, MIT License

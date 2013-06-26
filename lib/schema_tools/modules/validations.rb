@@ -1,8 +1,12 @@
 require 'active_support/concern'
-require 'active_model/validations'
-require 'active_model/naming'
-require 'active_model/translation'
-require 'active_model/conversion'
+require 'active_model'
+# comment single files bcs. AM requires lazy and in rails 4 names have changed!
+# left them in for reference
+#require 'active_model/validations'
+#require 'active_model/naming'
+#require 'active_model/translation'
+#require 'active_model/conversion'
+
 module SchemaTools
   module Modules
     # Add schema properties to a class by including this module and defining from
