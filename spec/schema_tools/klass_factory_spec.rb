@@ -28,6 +28,17 @@ describe SchemaTools::KlassFactory do
 
   end
 
+  context 'from json' do
+    it 'should build object' do
+      SchemaTools::KlassFactory.build
+      json_str = ActiveSupport::JSON.encode(client: { organisation: 'Ruby Fun'})
+
+      client = Client.new json: json_str
+      #client = Client.from_json json_str
+      client.organisation.should == 'Ruby Fun'
+    end
+  end
+
   context 'with validations' do
     it 'should add validations' do
       SchemaTools::KlassFactory.build

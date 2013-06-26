@@ -108,36 +108,7 @@
       "enum":["cash","bank_transfer","credit_card","paypal","direct_debit","cheque", "moneybookers", "premium_sms"],
       "type":"string"
     },
-    "bank_name":{
-      "description": "Bank name",
-      "type":"string",
-      "maxLength": 70
-    },
-    "bank_number":{
-      "description": "Bank number",
-      "type":"string",
-      "maxLength": 35
-    },
-    "bank_account_number":{
-      "description": "Bank account number.",
-      "type":"string",
-      "maxLength": 35
-    },
-    "bank_iban":{
-      "description": "IBAN Number of the bank account. Is validated",
-      "type":"string",
-      "maxLength": 35
-    },
-    "bank_swift":{
-      "description": "SWIFT BIC-  Bank Identifier Code",
-      "type":"string",
-      "maxLength": 11
-    },
-    "bank_owner":{
-      "description": "Bank account owner",
-      "type":"string",
-      "maxLength": 70
-    },
+
     "phone_fax":{
       "description": "Fax number",
       "type":"string",

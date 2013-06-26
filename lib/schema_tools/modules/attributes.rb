@@ -23,13 +23,12 @@ module SchemaTools
           schema[:properties].each do |key, val|
             # getter
             define_method key do
-              schema_attrs[key]
+              schema_attrs[key.to_sym]
             end
             #setter
             unless val[:readonly]
               define_method "#{key}=" do |value|
-                #TODO validations?
-                schema_attrs[key] = value
+                schema_attrs[key.to_sym] = value
               end
             end
           end
