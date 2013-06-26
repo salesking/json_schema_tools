@@ -50,11 +50,11 @@ describe SchemaTools::KlassFactory do
       #to big
       client.cash_discount = 101
       client.valid?
-      client.errors.full_messages[0].should include('less_than_or_equal_to')
+      client.errors.full_messages[0].should include('less than or equal to')
       # to small
       client.cash_discount = -1
       client.valid?
-      client.errors.full_messages[0].should include('greater_than_or_equal_to')
+      client.errors.full_messages[0].should include('greater than or equal to')
     end
 
     it 'should raise with invalid params' do

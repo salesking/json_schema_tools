@@ -26,10 +26,10 @@ schema.json files are located.
 Read a single schema:
 
     schema = SchemaTools::Reader.read :client
-    
+
 Read a schema from an existing Ruby hash:
 
-    schema = SchemaTools::Reader.read :client, { ... } 
+    schema = SchemaTools::Reader.read :client, { ... }
 
 Read multiple schemas, all *.json files in schema path
 
@@ -148,10 +148,19 @@ Add a custom schema reader most likely usefull in conjunction with a custom path
 
 ## Test
 
-Only runs on Ruby 1.9
+Only runs on Ruby 1.9 and by default uses most recent ActiveModel version (>3).
 
     bundle install
-    bundle exec rake spec
+    rake spec
 
+Testing with different ActiveModel / ActiveSupport Versions:
+
+  RAILS_VERSION=3.1 bundle install
+  rake spec
+  # or if already installed
+  RAILS_VERSION=4 rake spec
+
+The RAILS_VERSION switch sets the version of the gems in the Gemfile and is only
+usefull in test env.
 
 Copyright 2012-1013, Georg Leciejewski, MIT License
