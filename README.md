@@ -26,6 +26,10 @@ schema.json files are located.
 Read a single schema:
 
     schema = SchemaTools::Reader.read :client
+    
+Read a schema from an existing Ruby hash:
+
+    schema = SchemaTools::Reader.read :client, { ... } 
 
 Read multiple schemas, all *.json files in schema path
 
@@ -45,7 +49,6 @@ Don't like the global path and registry? Go local:
     reader = SchemaTools::Reader.new
     reader.read :client, 'from/path'
     reader.registry
-
 
 ## Object to Schema JSON
 
