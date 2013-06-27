@@ -5,21 +5,42 @@ class Contact
   has_schema_attrs :client
 end
 
+class Numbers
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs :numbers, :schema => schema_as_ruby_object
+end
+
 describe SchemaTools::Modules::Attributes do
 
   context 'included' do
-    let(:contact){Contact.new}
+    subject { Contact.new }
 
     it 'should add getter methods' do
-      contact.respond_to?(:last_name).should be_true
+      subject.should respond_to(:last_name)
     end
 
     it 'should add setter methods' do
-      contact.respond_to?('first_name=').should be_true
+      subject.should respond_to('first_name=')
     end
 
     it 'should not add setter for readonly properties' do
-      contact.respond_to?('id=').should be_false
+      subject.should_not respond_to('id=')
+    end
+  end
+
+  context 'attributes from dynamic schema' do
+    subject { Numbers.new }
+
+    it 'should add getter methods' do
+      subject.should respond_to(:numbers)
+    end
+
+    it 'should add setter methods' do
+      subject.should respond_to('numbers=')
+    end
+
+    it 'should not add setter for readonly properties' do
+      subject.should_not respond_to('id=')
     end
   end
 end
