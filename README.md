@@ -195,4 +195,9 @@ Testing with different ActiveModel / ActiveSupport Versions:
 The RAILS_VERSION switch sets the version of the gems in the Gemfile and is only
 usefull in test env.
 
+
+# Credits
+
+* [Andy Nicholson](https://github.com/anicholson)
+
 Copyright 2012-1013, Georg Leciejewski, MIT License
