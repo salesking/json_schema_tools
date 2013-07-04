@@ -17,8 +17,9 @@ module SchemaTools
         # @options opts [String] :path schema path
         # @options opts [SchemaTools::Reader] :reader instance, instead of global reader/registry
         def has_schema_attrs(schema, opts={})
-          reader = opts[:reader] || SchemaTools::Reader
-          schema = reader.read(schema, opts[:path])
+          reader          = opts[:reader] || SchemaTools::Reader
+          schema_location = opts[:path]   || opts[:schema]
+          schema          = reader.read(schema, schema_location)
           # make getter / setter
           schema[:properties].each do |key, val|
             # getter
