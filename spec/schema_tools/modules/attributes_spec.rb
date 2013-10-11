@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-class Contact
+class TestContact
   include SchemaTools::Modules::Attributes
   has_schema_attrs :client
 end
@@ -13,7 +13,7 @@ end
 describe SchemaTools::Modules::Attributes do
 
   context 'included' do
-    subject { Contact.new }
+    subject { TestContact.new }
 
     it 'should add getter methods' do
       subject.should respond_to(:last_name)
@@ -25,6 +25,7 @@ describe SchemaTools::Modules::Attributes do
 
     it 'should not add setter for readonly properties' do
       subject.should_not respond_to('id=')
+      subject.should_not respond_to('created_at=')
     end
   end
 

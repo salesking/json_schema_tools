@@ -160,11 +160,12 @@ Rather like a namespace? Good idea, but don't forget the class or module must
 be defined.
 
 ```ruby
+module SalesKing; end
 SchemaTools::KlassFactory.build namespace: SalesKing
 client = SalesKing::Client.new
 ```
 
-Add a custom schema reader most likely usefull in conjunction with a custom path
+Add a custom schema reader most likely useful in conjunction with a custom path
 
 ```ruby
 reader = SchemaTools::Reader.new
@@ -173,9 +174,9 @@ SchemaTools::KlassFactory.build reader: reader, path: HappyPdf::Schema.path
 
 ## Real world examples
 
-* [HappyPdf json schema](https://github.com/happyPDF/happypdf_json_schema) .. api gem will follow
 * [DocTag ruby gem](https://github.com/docTag/doctag_rb) and [DocTag json-schema](https://github.com/docTag/doctag_json_schema)
 * [SalesKing json schema](https://github.com/salesking/sk_api_schema)
+* [HappyPdf json schema](https://github.com/happyPDF/happypdf_json_schema) .. api gem will follow
 * .. Your UseCase here
 
 ## Test

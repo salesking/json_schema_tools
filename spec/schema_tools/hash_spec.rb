@@ -1,57 +1,83 @@
 require 'spec_helper'
 
-class Client
+class Contact
   attr_accessor :first_name, :last_name, :addresses, :id
-  end
+end
 
 describe SchemaTools::Hash do
 
   context 'from_schema' do
-    let(:client){Client.new}
+    let(:contact){Contact.new}
     before :each do
-      client.first_name = 'Peter'
-      client.last_name = 'Paul'
-      client.id = 'SomeID'
+      contact.first_name = 'Peter'
+      contact.last_name = 'Paul'
+      contact.id = 'SomeID'
     end
     after :each do
       SchemaTools::Reader.registry_reset
     end
 
     it 'should return hash' do
-      hash = SchemaTools::Hash.from_schema(client)
-      hash['client']['last_name'].should == 'Paul'
+      hash = SchemaTools::Hash.from_schema(contact)
+      hash['contact']['last_name'].should == 'Paul'
     end
 
     it 'should use custom schema path' do
       custom_path = File.expand_path('../../fixtures', __FILE__)
-      hash = SchemaTools::Hash.from_schema(client, path: custom_path)
-      hash['client']['last_name'].should == 'Paul'
+      hash = SchemaTools::Hash.from_schema(contact, path: custom_path)
+      hash['contact']['last_name'].should == 'Paul'
     end
 
     it 'should use custom schema' do
-      hash = SchemaTools::Hash.from_schema(client, class_name: :contact)
+      hash = SchemaTools::Hash.from_schema(contact, class_name: :contact)
       hash['contact']['last_name'].should == 'Paul'
     end
 
     it 'should use only give fields' do
-      hash = SchemaTools::Hash.from_schema(client, fields: ['id', 'last_name'])
-      hash['client'].keys.length.should == 2
-      hash['client']['last_name'].should == client.last_name
-      hash['client']['id'].should == client.id
-      hash['client']['first_name'].should be_nil
+      hash = SchemaTools::Hash.from_schema(contact, fields: ['id', 'last_name'])
+      hash['contact'].keys.length.should == 2
+      hash['contact']['last_name'].should == contact.last_name
+      hash['contact']['id'].should == contact.id
+      hash['contact']['first_name'].should be_nil
     end
   end
 
+  context 'with nested object values' do
+    class Client
+      attr_accessor :first_name, :last_name, :addresses, :id
+    end
+    class Address
+      attr_accessor :city, :zip
+    end
+
+    let(:client){Client.new}
+
+    it 'should have empty nested array values' do
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['client']['addresses'].should == []
+    end
+
+    it 'should have nested array values' do
+      a1 = Address.new
+      a1.city = 'Cologne'
+      a1.zip = 50733
+      client.addresses = [a1]
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['client']['addresses'].should == [{"address"=>{"city"=>"Cologne", "zip"=>50733}}]
+    end
+
+  end
+
+
   context 'with plain nested values' do
 
-    class Lead < Client
+    class Lead < Contact
       attr_accessor :links_clicked, :conversion
     end
 
     class Conversion
       attr_accessor :from, :to
     end
-
 
     let(:lead){Lead.new}
     before :each do
