@@ -5,25 +5,29 @@ module SchemaTools
 
     class << self
 
-      # Build classes from schema inside the given namespace. Uses all classes
-      # found in schema path:
+      # Build ruby classes from a schema with getter/setter methods for all
+      # properties and validation. Uses all classes(json files) found in global
+      # schema path or you can add a custom path.
+      # A namespace can be given under which the classes will be created.
       # @example
       #
-      # First set a global schema path:
+      # First set a(global) schema path:
       #     SchemaTools.schema_path = File.expand_path('../fixtures', __FILE__)
       #
-      # Bake classes from all schema.json found
+      # Build classes from all json files in schema path
       #     SchemaTools::KlassFactory.build
       #
-      # Go use it
+      # Go use them
       #     client = Client.new organisation: 'SalesKing'
       #     client.valid?
       #     client.errors.should be_blank
-      #
+      # With custom options:
+      #     SchemaTools::KlassFactory.build namespace: MyModule,
+      #                                     path: 'custom/path/to_json_schema'
       # @param [Hash] opts
       # @options opts [SchemaTools::Reader] :reader to use instead of global one
-      # @options opts [SchemaTools::Reader] :path to schema files instead of global one
-      # @options opts [SchemaTools::Reader] :namespace of the new classes e.g. MyCustomNamespace::MySchemaClass
+      # @options opts [String] :path to schema files instead of global one
+      # @options opts [String|Symbol|Module] :namespace of the new classes e.g. MyCustomNamespace::MySchemaClass
       def build(opts={})
         reader = opts[:reader] || SchemaTools::Reader
         schemata = reader.read_all( opts[:path] || SchemaTools.schema_path )

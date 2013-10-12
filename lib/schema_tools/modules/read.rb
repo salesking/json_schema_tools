@@ -25,8 +25,8 @@ module SchemaTools
 
       # Read a schema and return it as hash. You can supply a path or the
       # global path defined in #SchemaTools.schema_path is used.
-      # Schemata returned from cache in #registry to prevent filesystem
-      # round-trips. The cache can be resented with #registry_reset
+      # Schemata are returned from cache(#registry) if present to prevent
+      # filesystem round-trips. The cache can be reset with #registry_reset
       #
       # @param [String|Symbol] schema name to be read from schema path directory
       # @param [String|Hash] either the path to retrieve schema_name from,
@@ -36,14 +36,14 @@ module SchemaTools
         schema_name = schema_name.to_sym
         return registry[schema_name] if registry[schema_name]
 
-        if path_or_schema.is_a? ::Hash
+        if path_or_schema.is_a?(::Hash)
           path       = nil
           plain_data = path_or_schema.to_json
         elsif path_or_schema.is_a?(::String) || path_or_schema.nil?
           path       = path_or_schema
           file_path  = File.join(path || SchemaTools.schema_path, "#{schema_name}.json")
         else
-          raise ArgumentError, "Second parameter must be a path or a schema!"
+          raise ArgumentError, 'Second parameter must be a path or a schema!'
         end
 
         plain_data ||= File.open(file_path, 'r'){|f| f.read}

@@ -1,12 +1,13 @@
 require 'spec_helper'
 
-class Contact
-  attr_accessor :first_name, :last_name, :addresses, :id
-end
 
 describe SchemaTools::Hash do
 
-  context 'from_schema' do
+  context 'from_schema to hash conversion' do
+
+    class Contact
+      attr_accessor :first_name, :last_name, :addresses, :id
+    end
     let(:contact){Contact.new}
     before :each do
       contact.first_name = 'Peter'
@@ -42,9 +43,9 @@ describe SchemaTools::Hash do
     end
   end
 
-  context 'with nested object values' do
+  context 'with nested values referencing a schema' do
     class Client
-      attr_accessor :first_name, :last_name, :addresses, :id
+      attr_accessor :first_name, :id, :addresses,  :work_address
     end
     class Address
       attr_accessor :city, :zip
@@ -52,9 +53,14 @@ describe SchemaTools::Hash do
 
     let(:client){Client.new}
 
-    it 'should have empty nested array values' do
+    it 'should have an empty array if values are missing' do
       hash = SchemaTools::Hash.from_schema(client)
       hash['client']['addresses'].should == []
+    end
+
+    it 'should have nil if nested object is missing' do
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['client']['work_address'].should be_nil
     end
 
     it 'should have nested array values' do
@@ -66,11 +72,19 @@ describe SchemaTools::Hash do
       hash['client']['addresses'].should == [{"address"=>{"city"=>"Cologne", "zip"=>50733}}]
     end
 
+    it 'should have nested object value' do
+      a1 = Address.new
+      a1.city = 'Cologne'
+      a1.zip = 50733
+      client.work_address = a1
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['client']['work_address'].should == {"address"=>{"city"=>"Cologne", "zip"=>50733}}
+    end
+
   end
 
-
   context 'with plain nested values' do
-
+    # see fixtures/lead.json
     class Lead < Contact
       attr_accessor :links_clicked, :conversion
     end

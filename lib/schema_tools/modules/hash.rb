@@ -24,7 +24,7 @@ module SchemaTools
       #  obj_hash = Schema.to_hash_from_schema(obj, class_name: :document)
       #   => { 'document' =>{'title'=>'hello world' } }
       #
-      # @param [Object] obj which is returned as hash
+      # @param [Object] obj returned as hash
       # @param [Hash{Symbol=>Mixed}] opts additional options
       # @options opts [String|Symbol] :class_name used as hash key. Should be
       # a lowercase underscored name and it MUST have an existing schema file.
@@ -88,11 +88,11 @@ module SchemaTools
         if obj.respond_to?( field ) && rel_objects = obj.send( field )
           rel_objects.each do |rel_obj|
             res << if prop['properties'] && prop['properties']['$ref']
-                              #got schema describing the objects
-                              from_schema(rel_obj, opts)
-                            else
-                              rel_obj
-                            end
+                      #got schema describing the objects
+                      from_schema(rel_obj, opts)
+                    else
+                      rel_obj
+                    end
           end
         end
         res
