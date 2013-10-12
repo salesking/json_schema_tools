@@ -17,9 +17,12 @@ Hook the gem into your app
 
 ## Read Schema
 
-Before the fun begins, with any of the tools, one or multiple JSON schema files
-must be available(read into a hash). So first provide a base path where the
-schema.json files are located.
+Before the fun begins, with any of the tools, one or multiple JSON schema(files)
+must be available. A schema is converted into a ruby hash and for convenience is
+cached into a registry (global or local). So you only need to initialize them
+once e.g on program start.
+
+Provide a base path where the schema json files are located.
 
 ```ruby
 SchemaTools.schema_path = '/path/to/schema-json-files'
@@ -66,14 +69,19 @@ reader.registry
 
 ## Object to Schema JSON
 
-A schema provides a (public) contract about an object definition. Therefore an
+As you probably know such is done e.g in rails via object.to_json. While using
+this might be simple, it has a damn big drawback: There is no transparent
+contract about the data-structure, as rails simply uses all fields defined in the
+database(ActiveRecord model). With each migration you are f***ed
+
+A schema provides a public contract about an object definition. Therefore an
 internal object is converted to it's schema version on delivery(API access).
 First the object is converted to a hash containing only the properties(keys)
 from its schema definition. Afterwards it is a breeze to convert this hash into
 JSON, with your favorite generator.
 
-Following uses client.json schema(same as peter.class name) inside the global
-schema_path and adds properties to the clients_hash simply calling
+Following uses client.json schema, detected from peter.class name.underscore => "client",
+inside the global schema_path and adds properties to the clients_hash by simply calling
 client.send('property-name'):
 
 ```ruby
@@ -107,6 +115,19 @@ client_hash = SchemaTools::Hash.from_schema(peter, path: 'path-to/json-files/')
 #=> "client"=>{"id"=>12, "name"=> "Peter"}
 ```
 
+By default the object hash has the class name (client) and the link-section on
+root level. This divides the data from the available methods and makes a clear
+statement about the object type(it's class).
+If you don't want to traverse that one extra level you can exclude the root
+and move the data one level up. See how class name and links are available
+inline:
+
+```ruby
+client_hash = SchemaTools::Hash.from_schema(peter, exclude_root: true)
+#=> {"id"=>12, "name"=> "Peter",
+#    "_class_name":"client", "_links":[ .. are inlined .. ]}
+```
+
 ## Parameter cleaning
 
 Hate people spamming your api with wrong object fields? Use the Cleaner to
@@ -125,7 +146,7 @@ end
 ## Object attributes from Schema
 
 Add methods, defined in schema properties, to an existing class.
-Very usefull if you are building a API client and don't want to manually add
+Very useful if you are building a API client and don't want to manually add
 methods to you local classes .. like people NOT using JSON schema
 
 ```ruby

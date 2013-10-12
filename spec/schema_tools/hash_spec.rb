@@ -41,6 +41,22 @@ describe SchemaTools::Hash do
       hash['contact']['id'].should == contact.id
       hash['contact']['first_name'].should be_nil
     end
+
+    it 'should exclude root' do
+      hash = SchemaTools::Hash.from_schema(contact, exclude_root: true)
+      hash['last_name'].should == 'Paul'
+      hash['_class_name'].should == 'contact'
+    end
+
+    it 'should have _links on object if exclude root' do
+      hash = SchemaTools::Hash.from_schema(contact, exclude_root: true, class_name: :client)
+      hash['_links'].length.should == 8
+    end
+
+    it 'should have _class_name on object if exclude root' do
+      hash = SchemaTools::Hash.from_schema(contact, exclude_root: true, class_name: :client)
+      hash['_class_name'].should == 'client'
+    end
   end
 
   context 'with nested values referencing a schema' do
@@ -72,6 +88,15 @@ describe SchemaTools::Hash do
       hash['client']['addresses'].should == [{"address"=>{"city"=>"Cologne", "zip"=>50733}}]
     end
 
+    it 'should have nested array values without root' do
+      a1 = Address.new
+      a1.city = 'Cologne'
+      a1.zip = 50733
+      client.addresses = [a1]
+      hash = SchemaTools::Hash.from_schema(client, exclude_root: true)
+      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>50733, "_class_name"=>"address"}]
+    end
+
     it 'should have nested object value' do
       a1 = Address.new
       a1.city = 'Cologne'
@@ -79,6 +104,15 @@ describe SchemaTools::Hash do
       client.work_address = a1
       hash = SchemaTools::Hash.from_schema(client)
       hash['client']['work_address'].should == {"address"=>{"city"=>"Cologne", "zip"=>50733}}
+    end
+
+    it 'should have nested object value without root' do
+      a1 = Address.new
+      a1.city = 'Cologne'
+      a1.zip = 50733
+      client.work_address = a1
+      hash = SchemaTools::Hash.from_schema(client, exclude_root: true)
+      hash['work_address'].should == {"city"=>"Cologne", "zip"=>50733, "_class_name"=>"address"}
     end
 
   end

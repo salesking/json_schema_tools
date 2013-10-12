@@ -32,6 +32,8 @@ module SchemaTools
       # @options opts [Array<String>] :fields to return. If not set all schema
       # properties are used.
       # @options opts [String] :path of the schema files overriding global one
+      # @options opts [Boolean] :exclude_root if set objects are not nested under
+      # their class name and the object hash gets _links and _class_name inline.
       #
       # @return [Hash{String=>{String=>Mixed}}] The object as hash:
       #   { 'invoice' => {'title'=>'hello world', 'number'=>'4711' } }
@@ -56,10 +58,17 @@ module SchemaTools
             data[field] = obj.send(field) if obj.respond_to?(field)
           end
         end
-        hsh = { "#{class_name}" => data }
-        #add links if present
+        #get links if present
         links = parse_links(obj, schema)
-        links && hsh['links'] = links
+
+        if opts[:exclude_root]
+          hsh = data
+          hsh['_class_name'] = "#{class_name}"
+          links && hsh['_links'] = links
+        else
+          hsh = { "#{class_name}" => data }
+          links && hsh['links'] = links
+        end
         hsh
       end
 
