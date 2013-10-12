@@ -67,15 +67,15 @@ reader.read :client, 'from/path'
 reader.registry
 ```
 
-## Object to Schema JSON
+## Object to JSON  - from Schema
 
 As you probably know such is done e.g in rails via object.to_json. While using
 this might be simple, it has a damn big drawback: There is no transparent
 contract about the data-structure, as rails simply uses all fields defined in the
-database(ActiveRecord model). With each migration you are f***ed
+database(ActiveRecord model). One side-effect: With each migration you are f***ed
 
 A schema provides a public contract about an object definition. Therefore an
-internal object is converted to it's schema version on delivery(API access).
+internal object is converted to it's public(schema) version on delivery(API access).
 First the object is converted to a hash containing only the properties(keys)
 from its schema definition. Afterwards it is a breeze to convert this hash into
 JSON, with your favorite generator.
@@ -85,15 +85,39 @@ inside the global schema_path and adds properties to the clients_hash by simply 
 client.send('property-name'):
 
 ```ruby
+class Client < ActiveRecord::Base
+  include SchemaTools::Modules::AsSchema
+end
+
 peter = Client.new name: 'Peter'
-client_hash = SchemaTools::Hash.from_schema(peter)
-#=> "client"=>{"id"=>12, "name"=> "Peter", "email"=>"",..} # whatever else you have as properties
+peter.as_schema_json
+#=> "client":{"id":12, "name": "Peter", "email":"",..}
+
+peter.as_schema_hash
+#=> "client"=>{"id"=>12, "name"=> "Peter", "email"=>"",..}
+```
+
+The AsSchema module is a tiny wrapper for following low level method:
+
+```ruby
+paul = Contact.new name: 'Peter'
+contact_hash = SchemaTools::Hash.from_schema(paul)
+#=> "contact"=>{"id"=>12, "name"=> "Peter", "email"=>"",..}
 # to_json is up to you .. or your rails controller
 ```
 
-### Customise Schema Hash
+### Customise Output JSON / Hash
+
+Following examples show options to customize the resulting json or hash. Of
+course they can be combined.
 
 Only use some fields e.g. to save bandwidth
+
+```ruby
+peter.as_schema_json(fields:['id', 'name'])
+#=> "client":{"id":12, "name": "Peter"}
+```
+Of course the low level hash method also supports all of these options:
 
 ```ruby
 client_hash = SchemaTools::Hash.from_schema(peter, fields:['id', 'name'])
@@ -104,15 +128,13 @@ Use a custom schema name e.g. to represent a client as contact. Assumes you also
 have a schema named contact.json
 
 ```ruby
-client_hash = SchemaTools::Hash.from_schema(peter, class_name: 'contact')
-#=> "contact"=>{"id"=>12, "name"=> "Peter"}
+peter.as_schema_json(class_name: 'contact')
 ```
 
-Use a custom schema path
+Set a custom schema path
 
 ```ruby
-client_hash = SchemaTools::Hash.from_schema(peter, path: 'path-to/json-files/')
-#=> "client"=>{"id"=>12, "name"=> "Peter"}
+peter.as_schema_json( path: 'path-to/json-files/')
 ```
 
 By default the object hash has the class name (client) and the link-section on
@@ -123,6 +145,9 @@ and move the data one level up. See how class name and links are available
 inline:
 
 ```ruby
+
+peter.as_schema_json( exclude_root: true )
+
 client_hash = SchemaTools::Hash.from_schema(peter, exclude_root: true)
 #=> {"id"=>12, "name"=> "Peter",
 #    "_class_name":"client", "_links":[ .. are inlined .. ]}
@@ -159,6 +184,8 @@ contact = Client.new
 contact.last_name = 'Rambo'
 # raw access
 contact.schema_attrs
+# to json
+contact.as_schema_json
 ```
 
 ## Classes from Schema - KlassFactory
@@ -215,8 +242,7 @@ Testing with different ActiveModel / ActiveSupport Versions:
     RAILS_VERSION=4 rake spec
 
 The RAILS_VERSION switch sets the version of the gems in the Gemfile and is only
-usefull in test env.
-
+useful in test env.
 
 # Credits
 

@@ -2,25 +2,21 @@ require 'spec_helper'
 
 class ClassWithSchemaAttrs
   include SchemaTools::Modules::Attributes
-  include SchemaTools::Modules::AsSchema
   has_schema_attrs :client
 end
 
 class ClassWithSchemaName
   include SchemaTools::Modules::AsSchema
-  use_schema :lead
-  end
+  schema_name :lead
+end
 
-module Test # namespace to not interfere with classes used in other tests
+# namespaced to not interfere with classes used in other tests
+module Test
   class Address
     include SchemaTools::Modules::AsSchema
   end
 end
 
-#class Numbers
-#  include SchemaTools::Modules::Attributes
-#  has_schema_attrs :numbers, :schema => schema_as_ruby_object
-#end
 
 describe SchemaTools::Modules::AsSchema do
 
@@ -58,6 +54,26 @@ describe SchemaTools::Modules::AsSchema do
 
     it 'should use schema_name defined in class' do
       ClassWithSchemaName.new.as_schema_hash.keys.should include('lead')
+    end
+
+    it 'should use class name ' do
+      Test::Address.new.as_schema_hash.keys.should include('address')
+    end
+  end
+
+  describe 'schema options' do
+    subject { ClassWithSchemaAttrs.new }
+
+    it 'should override schema name from' do
+      subject.as_schema_hash(class_name:'contact').keys.should include('contact')
+    end
+
+    it 'should use fields' do
+      subject.as_schema_hash(fields:['id'])['client'].keys.should == ['id']
+    end
+
+    it 'should exclude root' do
+      subject.as_schema_hash(exclude_root: true).keys.should include('id')
     end
 
     it 'should use class name ' do

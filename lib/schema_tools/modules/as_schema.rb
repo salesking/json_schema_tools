@@ -1,16 +1,24 @@
 require 'active_support/concern'
 module SchemaTools
   module Modules
-    # Add schema properties to a class by including this module and defining from
-    # which schema to inherit attributes.
+    # Extend a class so it can be rendered as json from a named schema
     module AsSchema
       extend ActiveSupport::Concern
-      # convert this class to a schema markup. The schema is derived from
-      # has_schema_attrs definition(if available) or from given options
+
+      # convert this class to a schema markup.
+      # @param [Hash{Symbol=>Mixed}] opts passed on to #SchemaTools::Hash.from_schema
+      # @return [String] json
       def as_schema_json(opts={})
         ActiveSupport::JSON.encode(as_schema_hash(opts))
       end
 
+      # Get the object as hash with fields detected from its schema.
+      # The schema is derived from
+      # * from options[:class_name]
+      # * has_schema_attrs definition(if used)
+      # * the underscored class name
+      # @param [Hash{Symbol=>Mixed}] opts passed on to #SchemaTools::Hash.from_schema
+      # @return [Hash]
       def as_schema_hash(opts={})
         # detect schema name from class method, else class name or opts is used.
         if self.class.schema_name
@@ -20,17 +28,10 @@ module SchemaTools
       end
 
       module ClassMethods
-        def use_schema(name)
-          @schema_name = name
-        end
-
-        if !method_defined?(:schema_name)
-          def schema_name
-            @schema_name
-          end
-          def schema_name=(name)
-            @schema_name = name
-          end
+        # Get or set the schema name used
+        def schema_name(name=nil)
+          @schema_name = name if name
+          @schema_name
         end
       end
 

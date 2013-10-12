@@ -27,6 +27,10 @@ describe SchemaTools::Modules::Attributes do
       subject.should_not respond_to('id=')
       subject.should_not respond_to('created_at=')
     end
+
+    it 'should add schema_name to class' do
+      subject.class.schema_name.should == :client
+    end
   end
 
   context 'attributes from dynamic schema' do
