@@ -100,9 +100,9 @@ peter.as_schema_hash
 The AsSchema module is a tiny wrapper for following low level method:
 
 ```ruby
-paul = Contact.new name: 'Peter'
+paul = Contact.new name: 'Paul'
 contact_hash = SchemaTools::Hash.from_schema(paul)
-#=> "contact"=>{"id"=>12, "name"=> "Peter", "email"=>"",..}
+#=> "contact"=>{"id"=>12, "name"=> "Paul",..}
 # to_json is up to you .. or your rails controller
 ```
 
@@ -116,12 +116,6 @@ Only use some fields e.g. to save bandwidth
 ```ruby
 peter.as_schema_json(fields:['id', 'name'])
 #=> "client":{"id":12, "name": "Peter"}
-```
-Of course the low level hash method also supports all of these options:
-
-```ruby
-client_hash = SchemaTools::Hash.from_schema(peter, fields:['id', 'name'])
-#=> "client"=>{"id"=>12, "name"=> "Peter"}
 ```
 
 Use a custom schema name e.g. to represent a client as contact. Assumes you also
@@ -148,11 +142,17 @@ inline:
 
 peter.as_schema_json( exclude_root: true )
 
-client_hash = SchemaTools::Hash.from_schema(peter, exclude_root: true)
-#=> {"id"=>12, "name"=> "Peter",
-#    "_class_name":"client", "_links":[ .. are inlined .. ]}
+#=> {"id":12, "name"=> "Peter",
+#    "_class_name":"client",
+#    "_links":[ .. ] }
 ```
 
+Of course the low level hash method also supports all of these options:
+
+```ruby
+client_hash = SchemaTools::Hash.from_schema(peter, fields:['id', 'name'])
+#=> "client"=>{"id"=>12, "name"=> "Peter"}
+```
 ## Parameter cleaning
 
 Hate people spamming your api with wrong object fields? Use the Cleaner to

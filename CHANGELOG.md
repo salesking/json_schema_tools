@@ -3,6 +3,7 @@
 
 2013-10
 
+* add to_schema_json for simpler model to json conversion
 * add option to exclude_root in to_schema hash method
 
 2013-06
