@@ -1,13 +1,34 @@
 require 'spec_helper'
 
+################################################################################
+# classes used in tests their naming is important because the respecting
+# json schema is derived from it
+################################################################################
+class Client
+  attr_accessor :first_name, :id, :addresses,  :work_address
+end
+class Address
+  attr_accessor :city, :zip
+end
+
+class Contact
+  attr_accessor :first_name, :last_name, :addresses, :id
+end
+
+# see fixtures/lead.json
+class Lead < Contact
+  attr_accessor :links_clicked, :conversion
+end
+
+class Conversion
+  attr_accessor :from, :to
+end
+
 
 describe SchemaTools::Hash do
 
   context 'from_schema to hash conversion' do
 
-    class Contact
-      attr_accessor :first_name, :last_name, :addresses, :id
-    end
     let(:contact){Contact.new}
     before :each do
       contact.first_name = 'Peter'
@@ -60,12 +81,6 @@ describe SchemaTools::Hash do
   end
 
   context 'with nested values referencing a schema' do
-    class Client
-      attr_accessor :first_name, :id, :addresses,  :work_address
-    end
-    class Address
-      attr_accessor :city, :zip
-    end
 
     let(:client){Client.new}
 
@@ -118,14 +133,6 @@ describe SchemaTools::Hash do
   end
 
   context 'with plain nested values' do
-    # see fixtures/lead.json
-    class Lead < Contact
-      attr_accessor :links_clicked, :conversion
-    end
-
-    class Conversion
-      attr_accessor :from, :to
-    end
 
     let(:lead){Lead.new}
     before :each do
