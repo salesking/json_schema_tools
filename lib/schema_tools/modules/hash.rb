@@ -39,25 +39,15 @@ module SchemaTools
       #   { 'invoice' => {'title'=>'hello world', 'number'=>'4711' } }
       #
       def from_schema(obj, opts={})
-        fields = opts[:fields]
+
         # get objects class name without inheritance
         real_class_name = obj.class.name.split('::').last.underscore
         class_name = opts[:class_name] || real_class_name
 
-        data = {}
         # get schema
         schema = SchemaTools::Reader.read(class_name, opts[:path])
         # iterate over the defined schema fields
-        schema['properties'].each do |field, prop|
-          next if fields && !fields.include?(field)
-          if prop['type'] == 'array'
-            data[field] = parse_list(obj, field, prop, opts)
-          elsif prop['type'] == 'object' # a singular related object
-            data[field] = parse_object(obj, field, prop, opts)
-          else # a simple field is only added if the object knows it
-            data[field] = obj.send(field) if obj.respond_to?(field)
-          end
-        end
+        data = parse_properties(obj, schema, opts)
         #get links if present
         links = parse_links(obj, schema)
 
@@ -74,6 +64,21 @@ module SchemaTools
 
       private
 
+      def parse_properties(obj, schema, opts)
+        fields = opts[:fields]
+        data = {}
+        schema['properties'].each do |field, prop|
+          next if fields && !fields.include?(field)
+          if prop['type'] == 'array'
+            data[field] = parse_list(obj, field, prop, opts)
+          elsif prop['type'] == 'object' # a singular related object
+            data[field] = parse_object(obj, field, prop, opts)
+          else # a simple field is only added if the object knows it
+            data[field] = obj.send(field) if obj.respond_to?(field)
+          end
+        end
+        data
+      end
       # Parse the link section of the schema by replacing {id} in urls
       # @return [Array<Hash{String=>String}> | Nil]
       def parse_links(obj, schema)
