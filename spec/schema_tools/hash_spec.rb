@@ -51,8 +51,8 @@ describe SchemaTools::Hash do
     end
 
     it 'should use custom schema' do
-      hash = SchemaTools::Hash.from_schema(contact, class_name: :contact)
-      hash['contact']['last_name'].should == 'Paul'
+      hash = SchemaTools::Hash.from_schema(contact, class_name: :client)
+      hash['client']['last_name'].should == 'Paul'
     end
 
     it 'should use only give fields' do
@@ -154,6 +154,28 @@ describe SchemaTools::Hash do
     it 'should create object with values' do
       @hash['lead']['conversion']['from'].should == lead.conversion.from
       @hash['lead']['conversion']['to'].should == lead.conversion.to
+    end
+
+  end
+
+  context 'with links' do
+    let(:client){Client.new}
+    before :each do
+      client.first_name = 'Peter'
+      client.id = 'SomeID'
+    end
+    after :each do
+      SchemaTools::Reader.registry_reset
+    end
+
+    it 'should have links' do
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['links'].length.should == 8
+    end
+
+    it 'should prepend base_url' do
+      hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com')
+      hash['links'].first['href'].should == 'http://json-hell.com/clients/SomeID'
     end
 
   end

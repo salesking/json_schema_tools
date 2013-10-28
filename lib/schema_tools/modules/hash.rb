@@ -32,6 +32,7 @@ module SchemaTools
       # @options opts [Array<String>] :fields to return. If not set all schema
       # properties are used.
       # @options opts [String] :path of the schema files overriding global one
+      # @options opts [String] :base_url used in all links
       # @options opts [Boolean] :exclude_root if set objects are not nested under
       # their class name and the object hash gets _links and _class_name inline.
       #
@@ -49,7 +50,7 @@ module SchemaTools
         # iterate over the defined schema fields
         data = parse_properties(obj, schema, opts)
         #get links if present
-        links = parse_links(obj, schema)
+        links = parse_links(obj, schema, opts)
 
         if opts[:exclude_root]
           hsh = data
@@ -79,12 +80,22 @@ module SchemaTools
         end
         data
       end
+
       # Parse the link section of the schema by replacing {id} in urls
+      # @param [Object] obj object being parsed
+      # @param [Hash] schema
+      # @param [Hash] opts
+      # @options opts [String] :base_url prepended to link href, WATCH possible double //
       # @return [Array<Hash{String=>String}> | Nil]
-      def parse_links(obj, schema)
+      def parse_links(obj, schema, opts={})
         links = []
         schema['links'] && schema['links'].each do |link|
-          links << { 'rel' => link['rel'], 'href' => link['href'].gsub(/\{id\}/, "#{obj.id}") }
+          # substitute placeholders
+          href = link['href'].gsub(/\{id\}/, "#{obj.id}")
+          href = "#{opts[:base_url]}/#{href}" if opts[:base_url]
+
+          links << { 'rel' => link['rel'],
+                     'href' => href }
         end
         links.uniq
         # return links only if not empty
