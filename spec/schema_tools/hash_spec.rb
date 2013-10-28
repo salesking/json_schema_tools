@@ -71,7 +71,7 @@ describe SchemaTools::Hash do
 
     it 'should have _links on object if exclude root' do
       hash = SchemaTools::Hash.from_schema(contact, exclude_root: true, class_name: :client)
-      hash['_links'].length.should == 8
+      hash['_links'].length.should == 7
     end
 
     it 'should have _class_name on object if exclude root' do
@@ -170,12 +170,17 @@ describe SchemaTools::Hash do
 
     it 'should have links' do
       hash = SchemaTools::Hash.from_schema(client)
-      hash['links'].length.should == 8
+      hash['links'].length.should == 7
     end
 
     it 'should prepend base_url' do
       hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com')
-      hash['links'].first['href'].should == 'http://json-hell.com/clients/SomeID'
+      hash['links'].first['href'].should include( 'http://json-hell.com')
+    end
+
+    it 'should replace placeholders' do
+      hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com')
+      hash['links'].last['href'].should == 'http://json-hell.com/clients/SomeID/Peter'
     end
 
   end

@@ -90,8 +90,16 @@ module SchemaTools
       def parse_links(obj, schema, opts={})
         links = []
         schema['links'] && schema['links'].each do |link|
-          # substitute placeholders
-          href = link['href'].gsub(/\{id\}/, "#{obj.id}")
+          href = link['href'].dup
+          # placeholders: find all {xy}, create replacement ary with
+          # values, than replace
+          matches = href.scan(/{(\w+)}/) #{abc} => abc
+          replaces = []
+          matches.each do |match|
+            obj_val = obj.send(match[0]) if obj.respond_to?(match[0])
+            replaces << ["{#{match[0]}}", obj_val] if obj_val
+          end
+          replaces.each {|r| href.gsub!(r[0], r[1])}
           href = "#{opts[:base_url]}/#{href}" if opts[:base_url]
 
           links << { 'rel' => link['rel'],

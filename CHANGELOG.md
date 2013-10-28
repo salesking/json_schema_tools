@@ -2,6 +2,7 @@
 
 
 2013-10
+* allow all object properties in link href placeholders => contacts/{id}/{number}
 * add base_url option to schema hash creation. Prepends an url to all links of a rendered object
 * add to_schema_json for simpler model to json conversion
 * add option to exclude_root in to_schema hash method

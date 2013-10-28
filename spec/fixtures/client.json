@@ -98,11 +98,6 @@
           "description": "Sort the results by the given field => number",
           "enum":["organisation", "number","email","first_name","last_name", "created_at", "updated_at"],
           "type": "string"
-        },
-        "sort":{
-          "title" : "Sort",
-          "enum":["ASC","DESC"],
-          "description": "Sort the results in ASC or DESC"
         }
       }
     },
@@ -121,11 +116,9 @@
     { "rel": "documents",
       "href": "clients/{id}/documents"
     },
-    { "rel": "attachments",
-      "href": "clients/{id}/attachments"
-    },
-    { "rel": "invoices",
-      "href": "clients/{id}/invoices"
+    { "rel": "test replacement",
+      "href": "clients/{id}/{first_name}"
     }
+
   ]
 }
