@@ -99,7 +99,7 @@ module SchemaTools
             obj_val = obj.send(match[0]) if obj.respond_to?(match[0])
             replaces << ["{#{match[0]}}", obj_val] if obj_val
           end
-          replaces.each {|r| href.gsub!(r[0], r[1])}
+          replaces.each {|r| href.gsub!(r[0], "#{r[1]}")}
           href = "#{opts[:base_url]}/#{href}" if opts[:base_url]
 
           links << { 'rel' => link['rel'],

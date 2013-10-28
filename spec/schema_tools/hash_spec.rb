@@ -179,8 +179,9 @@ describe SchemaTools::Hash do
     end
 
     it 'should replace placeholders' do
+      client.id = 123
       hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com')
-      hash['links'].last['href'].should == 'http://json-hell.com/clients/SomeID/Peter'
+      hash['links'].last['href'].should == 'http://json-hell.com/clients/123/Peter'
     end
 
   end
