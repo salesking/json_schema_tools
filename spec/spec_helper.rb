@@ -16,6 +16,7 @@ require 'test_helpers'
 RSpec.configure do |config|
 end
 
+I18n.enforce_available_locales = false
 # set global json schema path for examples
 SchemaTools.schema_path = File.expand_path('../fixtures', __FILE__)
 

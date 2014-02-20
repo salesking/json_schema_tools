@@ -32,32 +32,43 @@ module SchemaTools
         reader = opts[:reader] || SchemaTools::Reader
         schemata = reader.read_all( opts[:path] || SchemaTools.schema_path )
         namespace = opts[:namespace] || Object
-        if namespace.is_a?(String) || namespace.is_a?(Symbol)
-          namespace = "#{namespace}".constantize
-        end
+        namespace = "#{namespace}".constantize if namespace.is_a?(String) || namespace.is_a?(Symbol)
         # bake classes
         schemata.each do |schema|
-          klass_name = schema['name'].classify
-          next if namespace.const_defined?(klass_name, false)
-          klass = namespace.const_set(klass_name, Class.new)
-          klass.class_eval do
-            include SchemaTools::Modules::Attributes
-            include ActiveModel::Conversion
-            include SchemaTools::Modules::Validations # +naming + transl + conversion
-            has_schema_attrs schema['name'], reader: reader
-            validate_with schema['name'], reader:reader
-            getter_names = schema['properties'].select{|name,prop| !prop['readonly'] }.keys.map { |name| name.to_sym}
-            attr_accessor *getter_names
-
-            def initialize(attributes = {})
-              attributes.each do |name, value|
-                send("#{name}=", value)
-              end
-            end
-
-            def persisted?; false end
-          end
+          next if namespace.const_defined?(schema['name'].classify, false)
+          build_class(schema, namespace, reader)
         end
+      end
+
+      # @param [Object] schema single json schema
+      # @param [Constant] namespace for the new class
+      # @param [SchemaTools::Reader] reader set into new class for validation and attributes
+      def build_class(schema, namespace, reader)
+        klass_name = schema['name'].classify
+        klass = namespace.const_set(klass_name, Class.new)
+        klass.class_eval do
+          include SchemaTools::Modules::Attributes
+          include ActiveModel::Conversion
+          include SchemaTools::Modules::Validations # +naming + transl + conversion
+          has_schema_attrs schema['name'], reader: reader
+          validate_with schema['name'], reader:reader
+          getter_names = schema['properties'].select{|name,prop| !prop['readonly'] }
+                                             .keys.map { |name| name.to_sym}
+          attr_accessor *getter_names
+
+          def initialize(attributes = {})
+            attributes.each do |name, value|
+              send("#{name}=", value)
+            end
+          end
+
+          def persisted?; false end
+        end # class
+      end
+
+      # @param [Object] name
+      def namespace(name)
+
       end
 
     end
