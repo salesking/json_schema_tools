@@ -213,32 +213,8 @@
     { "rel": "documents",
       "href": "clients/{id}/documents"
     },
-    { "rel": "attachments",
-      "href": "clients/{id}/attachments"
-    },
-    { "rel": "invoices",
-      "href": "clients/{id}/invoices"
-    },
-    { "rel": "estimates",
-      "href": "clients/{id}/estimates"
-    },
-    { "rel": "orders",
-      "href": "clients/{id}/orders"
-    },
-    { "rel": "credit_notes",
-      "href": "clients/{id}/credit_notes"
-    },
-    { "rel": "recurrings",
-      "href": "clients/{id}/recurrings"
-    },
-    { "rel": "payment_reminders",
-      "href": "clients/{id}/payment_reminders"
-    },
-    { "rel": "comments",
-      "href": "clients/{id}/comments"
-    },
-    { "rel": "emails",
-      "href": "clients/{id}/emails"
+    { "rel": "test replacement",
+      "href": "clients/{id}/{first_name}"
     }
   ]
 }

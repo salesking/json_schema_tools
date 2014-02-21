@@ -91,8 +91,8 @@ module SchemaTools
               # assign values raw
               self.schema_attrs
               params.each { |key, val|
-                (@schema_attrs || schema_attrs)[key.to_sym] = val
-
+                #schema_attrs[key.to_sym] = val
+                send("#{key}=", val)
               }
             end
 
