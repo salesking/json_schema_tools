@@ -1,24 +1,6 @@
 require 'spec_helper'
 
 describe SchemaTools::Reader do
-  let(:ruby_schema) do
-    {
-      "type"=> "object",
-      "name"=> "numbers",
-      "properties"=> {
-        "numbers"=> {
-          "type"=> "array",
-          "items"=> {
-            "type"=> "number",
-            "minimum"=> 1,
-            "maximum"=> 100
-          },
-          "additionalProperties"=> false
-        }
-      },
-      "additionalProperties"=> false
-    }
-  end
 
   context 'class methods' do
 
@@ -44,7 +26,7 @@ describe SchemaTools::Reader do
     end
 
     it 'should read a schema from a Ruby Hash' do
-      schema = SchemaTools::Reader.read(:numbers, ruby_schema)
+      schema = SchemaTools::Reader.read(:numbers, schema_as_ruby_object)
 
       SchemaTools::Reader.registry[:numbers].should_not be_empty
 
@@ -68,7 +50,7 @@ describe SchemaTools::Reader do
     end
 
     it 'should read a single schema from Ruby Hash' do
-      schema = reader.read(:numbers, ruby_schema)
+      schema = reader.read(:numbers, schema_as_ruby_object)
       schema[:name].should == 'numbers'
       schema[:properties].should_not be_empty
     end

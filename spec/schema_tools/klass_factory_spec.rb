@@ -1,12 +1,10 @@
 require 'spec_helper'
 
 class TestNamespaceKlass
-  # namepsace for schema classes
+  # namespace for schema classes
 end
 
-module TestNamespaceModule
-
-end
+module TestNamespaceModule; end
 
 describe SchemaTools::KlassFactory do
 

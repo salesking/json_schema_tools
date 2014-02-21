@@ -1,7 +1,7 @@
 {"type":"object",
   "title": "client",
   "name": "client",
-  "description": "A client in SalesKing",
+  "description": "A example client.",
   "properties":{
     "id":{
       "description":"Unique identifier - UUID",
@@ -12,7 +12,7 @@
       "minLength":22
     },
     "number":{
-      "description": "Unique number, auto-created by SK for new client without number.",
+      "description": "Unique number, auto-created for new client without number.",
       "type":"string",
       "maxLength": 50
     },
@@ -92,46 +92,10 @@
       "readonly":true,
       "type":"string"
     },
-    "language":{
-      "description": "Should be a valid language short-code: de-DE, fr, en-GB; like defined in your account language menu. When the client is emailed, a localized version of a multi-language template(email, pdf) will be used if available. The language will also be set for new documents.",
-      "type":"string",
-      "maxLength": 10
-    },
-    "currency":{
-      "description": "Currency code as defined by the ISO 4217 standard(3-letter UPCASE: EUR, USD). If set the currency is taken for new documents.",
-      "type":"string",
-      "maxLength": 3,
-      "minLength": 3
-    },
-    "payment_method":{
-      "description": "Default payment method for used for new documemts",
-      "enum":["cash","bank_transfer","credit_card","paypal","direct_debit","cheque", "moneybookers", "premium_sms"],
-      "type":"string"
-    },
-
-    "phone_fax":{
-      "description": "Fax number",
-      "type":"string",
-      "maxLength": 30
-    },
-    "phone_office":{
-      "description": "Office phone number",
-      "type":"string",
-      "maxLength": 30
-    },
-    "phone_home":{
-      "description": "Private phone number",
-      "type":"string",
-      "maxLength": 30
-    },
     "phone_mobile":{
       "description": "Mobile phone number",
       "type":"string",
       "maxLength": 30
-    },
-    "lock_version":{
-      "description": "Increased on every edit, so SK can detect/prevent a concurrent edit by another user. First save wins.",
-      "type":"integer"
     },
     "cash_discount":{
       "description": "Default cash discount for new invoices.",
@@ -139,25 +103,15 @@
       "minimum": 0,
       "type":"number"
     },
-    "due_days":{
-      "description": "Default due days for new invoices.",
-      "type":"integer"
-    },
-    "address_field":{
-      "description": "Returns the address field used on new docs. Consist of Organisation name and default(first) address",
-      "readonly":true,
-      "type":"string"
-    },
     "addresses":{
       "description": "A client can have many addresses, sorted by date descending(new first). Default address is the most recent one.",
       "type":"array",
       "properties" : {"$ref":"./address.json#properties"}
     },
-    "team_id":{
-      "description": "A team uuid. If set only the team and its parent teams can see the record.",
-      "type":"string",
-      "maxLength": 22,
-      "minLength":22
+    "work_address":{
+      "description": "The work address as an example for a single nested/related object",
+      "type":"object",
+      "properties" : {"$ref":"./address.json#properties"}
     }
   },
   "links":[

@@ -6,7 +6,8 @@ describe SchemaTools::Cleaner do
     let(:params){
       { id: 'some id',
         last_name: 'Clean',
-        first_name: 'Paul'
+        first_name: 'Paul',
+        phone_mobile: 110
       }
     }
 
@@ -18,6 +19,11 @@ describe SchemaTools::Cleaner do
       SchemaTools::Cleaner.clean_params!(:client, params)
       params[:last_name].should == 'Clean'
       params[:id].should be_nil
+    end
+
+    it 'should convert values for string fields' do
+      SchemaTools::Cleaner.clean_params!(:client, params)
+      params[:phone_mobile].should == '110'
     end
   end
 end
