@@ -2,12 +2,18 @@
 
 [![Build Status](https://travis-ci.org/salesking/json_schema_tools.png?branch=master)](https://travis-ci.org/salesking/json_schema_tools)
 
-Set of tools to help working with JSON Schemata:
+Toolbox to work with JSON Schema in Ruby:
 
-* read schema files into a ruby hash
-* add schema properties to a class
-* convert any object into it's schema JSON markup
-* clean parameters according to a schema (e.g. in an api controller)
+* blow up classes from schema
+* object.as_json conversion
+* object.valid? validations with object.errors
+
+Simply use full blown classes or include and customize the bits and pieces:
+
+* add schema properties to an existing class
+* add validations to an existing class
+* clean parameters e.g. in an api controller
+* customize json output, object namespaces, used schema
 
 ## Usage
 
@@ -15,14 +21,33 @@ Hook the gem into your app
 
     gem 'json_schema_tools'
 
-## Read Schema
+Quickstart assuming you have you schema definitions [like those](https://github.com/salesking/sk_api_schema/tree/master/json/v1.0) in place.
+
+```ruby
+# add schema directory to the search path
+SchemaTools.schema_path = '/path/to/schema-json-files'
+# blow up classes for each schema file
+SchemaTools::KlassFactory.build
+
+# init with params (assumes a contact.json definition)
+contact = Contact.new first_name: 'Barry', last_name: 'Cade'
+# use setters/getters
+contact.first_name = 'Ahr'
+# validations derived from property definitions
+contact.valid?
+contact.errors.full_messages
+```
+
+## Schema handling
 
 Before the fun begins, with any of the tools, one or multiple JSON schema(files)
 must be available. A schema is converted into a ruby hash and for convenience is
-cached into a registry (global or local). So you only need to initialize them
-once e.g on program start.
+cached into a registry (global or per reader object). Globals are initialized
+once e.g on program start. A reader object allows to handle schemata in dynamic
+ways.
 
-Provide a base path where the schema json files are located.
+When using the global SchemaTools reader simply provide a base path to the
+schema files and you are done.
 
 ```ruby
 SchemaTools.schema_path = '/path/to/schema-json-files'
@@ -69,7 +94,7 @@ reader.registry
 
 ## Object to JSON  - from Schema
 
-As you probably know such is done e.g in rails via object.to_json. While using
+As you probably know such is done e.g in rails via object.as_json. While using
 this might be simple, it has a damn big drawback: There is no transparent
 contract about the data-structure, as rails simply uses all fields defined in the
 database(ActiveRecord model). One side-effect: With each migration you are f***ed
@@ -90,10 +115,10 @@ class Client < ActiveRecord::Base
 end
 
 peter = Client.new name: 'Peter'
-peter.as_schema_json
+peter.as_json
 #=> "client":{"id":12, "name": "Peter", "email":"",..}
 
-peter.as_schema_hash
+peter.as_hash
 #=> "client"=>{"id"=>12, "name"=> "Peter", "email"=>"",..}
 ```
 
@@ -114,7 +139,7 @@ course they can be combined.
 Only use some fields e.g. to save bandwidth
 
 ```ruby
-peter.as_schema_json(fields:['id', 'name'])
+peter.as_json(fields:['id', 'name'])
 #=> "client":{"id":12, "name": "Peter"}
 ```
 
@@ -122,13 +147,13 @@ Use a custom schema name e.g. to represent a client as contact. Assumes you also
 have a schema named contact.json
 
 ```ruby
-peter.as_schema_json(class_name: 'contact')
+peter.as_json(class_name: 'contact')
 ```
 
 Set a custom schema path
 
 ```ruby
-peter.as_schema_json( path: 'path-to/json-files/')
+peter.as_json( path: 'path-to/json-files/')
 ```
 
 By default the object hash has the class name (client) and the link-section on
@@ -140,7 +165,7 @@ inline:
 
 ```ruby
 
-peter.as_schema_json( exclude_root: true )
+peter.as_json( exclude_root: true )
 
 #=> {"id":12, "name"=> "Peter",
 #    "_class_name":"client",
@@ -185,7 +210,7 @@ contact.last_name = 'Rambo'
 # raw access
 contact.schema_attrs
 # to json
-contact.as_schema_json
+contact.as_json
 ```
 
 ## Classes from Schema - KlassFactory

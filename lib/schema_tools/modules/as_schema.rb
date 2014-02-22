@@ -5,16 +5,17 @@ module SchemaTools
     module AsSchema
       extend ActiveSupport::Concern
 
-      # convert this class to a schema markup.
+      # convert object to a schema markup.
       # @param [Hash{Symbol=>Mixed}] opts passed on to #SchemaTools::Hash.from_schema
       # @return [String] json
       def as_schema_json(opts={})
         ActiveSupport::JSON.encode(as_schema_hash(opts))
       end
+      def as_json(opts={}) as_schema_json(opts); end
 
-      # Get the object as hash with fields detected from its schema.
-      # The schema is derived from
-      # * from options[:class_name]
+      # The object as hash with fields detected from its schema.
+      # The schema name is derived from:
+      # * options[:class_name]
       # * has_schema_attrs definition(if used)
       # * the underscored class name
       # @param [Hash{Symbol=>Mixed}] opts passed on to #SchemaTools::Hash.from_schema
@@ -26,6 +27,7 @@ module SchemaTools
         end
         SchemaTools::Hash.from_schema(self, opts)
       end
+      def as_hash(opts={}) as_schema_hash(opts); end
 
       module ClassMethods
         # Get or set the schema name used

@@ -3,6 +3,12 @@ module SchemaTools
   module Modules
     # Add schema properties to a class by using has_schema_attrs to define from
     # which schema to inherit attributes.
+    # @example
+    #
+    #   class Contact
+    #     has_schema_attrs :contact
+    #   end
+    #   Contact.schema_name #=> contact
     module Attributes
       extend ActiveSupport::Concern
       include SchemaTools::Modules::AsSchema
