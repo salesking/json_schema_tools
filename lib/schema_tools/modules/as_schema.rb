@@ -31,6 +31,7 @@ module SchemaTools
 
       module ClassMethods
         # Get or set the schema name used
+        # @param [Symbol|String] name
         def schema_name(name=nil)
           @schema_name = name if name
           @schema_name
