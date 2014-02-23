@@ -3,12 +3,25 @@ module SchemaTools
   module Modules
     # Add schema properties to a class by using has_schema_attrs to define from
     # which schema to inherit attributes.
+    # @example
+    #
+    #   class Contact
+    #     has_schema_attrs :contact
+    #   end
+    #   Contact.schema_name #=> contact
+    #   Contact.as_json
+    #   Contact.as_hash
+    #   Contact.schema  #=> json schema hash
     module Attributes
       extend ActiveSupport::Concern
       include SchemaTools::Modules::AsSchema
 
       def schema_attrs
         @schema_attrs ||= {}
+      end
+
+      def schema
+        self.class.schema
       end
 
       module ClassMethods
@@ -20,22 +33,21 @@ module SchemaTools
         def has_schema_attrs(schema_name, opts={})
           reader          = opts[:reader] || SchemaTools::Reader
           schema_location = opts[:path]   || opts[:schema]
-          schema          = reader.read(schema_name, schema_location)
-          # remember name on class level
+          # remember schema + name on class level
+          self.schema( reader.read(schema_name, schema_location) )
           self.schema_name(schema_name)
           # make getter / setter
-          schema[:properties].each do |key, val|
-            # getter
-            define_method key do
-              schema_attrs[key.to_sym]
-            end
-            #setter
-            unless val[:readonly]
-              define_method "#{key}=" do |value|
-                schema_attrs[key.to_sym] = value
-              end
-            end
+          self.schema[:properties].each do |key, prop|
+            define_method(key) { schema_attrs[key] }
+            define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop[:readonly]
           end
+          #TODO parse links ?? or do it in resource module
+        end
+
+        # @param [Hash] schema_hash
+        def schema(schema_hash=nil)
+          @schema = schema_hash if schema_hash
+          @schema
         end
 
       end
