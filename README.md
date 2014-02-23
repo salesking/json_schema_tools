@@ -8,7 +8,7 @@ Toolbox to work with JSON Schema in Ruby:
 * object.as_json conversion
 * object.valid? validations with object.errors
 
-Simply use full blown classes or include and customize the bits and pieces:
+Simply use full blown classes or customize the bits and pieces:
 
 * add schema properties to an existing class
 * add validations to an existing class
@@ -21,7 +21,7 @@ Hook the gem into your app
 
     gem 'json_schema_tools'
 
-Quickstart assuming you have you schema definitions [like those](https://github.com/salesking/sk_api_schema/tree/master/json/v1.0) in place.
+Quickstart assuming you have schema definitions [like those](https://github.com/salesking/sk_api_schema/tree/master/json/v1.0) in place.
 
 ```ruby
 # add schema directory to the search path
