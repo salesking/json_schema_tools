@@ -31,6 +31,14 @@ describe SchemaTools::Modules::Attributes do
     it 'should add schema_name to class' do
       subject.class.schema_name.should == :client
     end
+
+    it 'should add schema to class' do
+      subject.class.schema.should == SchemaTools::Reader.read(:client)
+    end
+
+    it 'should add schema to object' do
+      subject.schema.should == SchemaTools::Reader.read(:client)
+    end
   end
 
   context 'attributes from dynamic schema' do
