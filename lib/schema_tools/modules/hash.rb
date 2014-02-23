@@ -65,12 +65,17 @@ module SchemaTools
 
       # find all {xy} and replace with value from object
       # @param [String] href contacts/{id}/attachments
-      # @param [Object] obj
-      def parse_placeholders(href, obj)
+      # @param [Object|Hash] obj_or_hash
+      # @return [String]
+      def parse_placeholders(href, obj_or_hash)
         matches = href.scan(/{(\w+)}/) #{abc} => abc
         replaces = []
         matches.each do |match|
-          obj_val = obj.send(match[0]) if obj.respond_to?(match[0])
+          obj_val = if obj_or_hash.is_a? Hash
+                      obj_or_hash[ match[0] ]
+                    else
+                      obj.send(match[0]) if obj.respond_to?(match[0])
+                    end
           replaces << ["{#{match[0]}}", obj_val] if obj_val
         end
         replaces.each {|r| href.gsub!(r[0], "#{r[1]}")}
