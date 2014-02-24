@@ -63,6 +63,25 @@ module SchemaTools
         hsh
       end
 
+      # find all {xy} and replace with value from object
+      # @param [String] href contacts/{id}/attachments
+      # @param [Object|Hash] obj_or_hash
+      # @return [String]
+      def parse_placeholders(href, obj_or_hash)
+        matches = href.scan(/{(\w+)}/) #{abc} => abc
+        replaces = []
+        matches.each do |match|
+          obj_val = if obj_or_hash.is_a? Hash
+                      obj_or_hash[ match[0] ]
+                    else
+                      obj.send(match[0]) if obj.respond_to?(match[0])
+                    end
+          replaces << ["{#{match[0]}}", obj_val] if obj_val
+        end
+        replaces.each {|r| href.gsub!(r[0], "#{r[1]}")}
+        href
+      end
+
       private
 
       def parse_properties(obj, schema, opts)
@@ -91,15 +110,7 @@ module SchemaTools
         links = []
         schema['links'] && schema['links'].each do |link|
           href = link['href'].dup
-          # placeholders: find all {xy}, create replacement ary with
-          # values, than replace
-          matches = href.scan(/{(\w+)}/) #{abc} => abc
-          replaces = []
-          matches.each do |match|
-            obj_val = obj.send(match[0]) if obj.respond_to?(match[0])
-            replaces << ["{#{match[0]}}", obj_val] if obj_val
-          end
-          replaces.each {|r| href.gsub!(r[0], "#{r[1]}")}
+          parse_placeholders(href, obj)
           href = "#{opts[:base_url]}/#{href}" if opts[:base_url]
 
           links << { 'rel' => link['rel'],
