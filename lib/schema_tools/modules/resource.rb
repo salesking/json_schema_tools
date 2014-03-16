@@ -1,13 +1,6 @@
 # encoding: utf-8
 require 'excon'
 
-# by http://blog.jayfields.com/2007/10/ruby-defining-class-methods.html
-class Object # http://whytheluckystiff.net/articles/seeingMetaclassesClearly.html
-  def define_class_method name, &blk
-    (class << self; self; end).instance_eval { define_method name, &blk }
-  end
-end
-
 module SchemaTools
   module Modules
     #
@@ -18,7 +11,7 @@ module SchemaTools
     #   has_schema_links link_key: 'links',
     #                    base_url: 'https://demo.salesking.eu'
     # end
-    # Class.conection(pass, usr)
+    # Class.connection(pass, usr)
     # obj.new(params)
     #
     # obj.before_find(request)
@@ -35,12 +28,16 @@ module SchemaTools
       extend ActiveSupport::Concern
       include SchemaTools::Modules::Attributes
 
-      def request
-        @request
-        #@connection || self.class.connection
+      def connection
+        @connection || self.class.connection
       end
+      # remember last request
       def request=(req)
         @request = req
+      end
+
+      def persisted?
+        self.id.present?
       end
 
 
@@ -63,55 +60,21 @@ module SchemaTools
         def build_methods_from_link(link, base_url=nil)
           case link['rel']
             when 'self'
-              # define class Method
+              SchemaTools::Resource::Find.add(self, link, base_url)
+              # find class Method
               # Contact.find(id)
-              define_class_method 'find' do |*args|
-                id, request_opts = args[0], args[1]
-                url_path = SchemaTools::Modules::Hash.parse_placeholders(link['href'],{id: id})
-                method = link['method'] || 'GET'
-                # setup request
-                connection = Excon.new(base_url)
-                opts = {
-                  method: link['method']|| 'DELETE',
-                  path: url_path,
-                }
-                # before_find(request)
-                response = connection.get
-                # parse result into self.attributes if result contains obj markup
-                # raise
-                # GET contacts/id
-                # self.response = response
-                # parse result into self.attributes
-                # after_find(request) use excon notify callbacks
-                # new_obj = self.new params
-                # or raise
-                return self
-               end
             when 'instances'
+              # find_all class Method
+              SchemaTools::Resource::FindAll.add(self, link, base_url)
             when 'destroy'
-              define_method 'destroy' do
-                url_path = SchemaTools::Modules::Hash.parse_placeholders(link['href'],{id: self.id})
-                method =
-                # DELETE contacts/id
-                connection = Excon.new(base_url)
-                opts = {
-                  method: link['method']|| 'DELETE',
-                  path: url_path,
-                }
-                response = connection.get
-                # parse result into self.attributes if result contains obj markup
-                # raise
-               end
+              SchemaTools::Resource::Destroy.add(self, link, base_url)
             when 'update'
-              define_method 'save' do
-                url = SchemaTools::Modules::Hash.parse_placeholders(link['href'],{id: self.id})
-                method = link['method']|| 'PUT'
-                # PUT contacts/id
-                # parse result into self.attributes if result contains obj markup
-                # raise
-               end
+              # PUT contacts/id
+              SchemaTools::Resource::Save.add(self, link, base_url)
             when 'create'
+              #SchemaTools::Resource::Create.add(self, link, base_url)
             else
+              # any defaults ??
           end
         end
 
