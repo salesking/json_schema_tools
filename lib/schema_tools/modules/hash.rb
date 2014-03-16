@@ -74,7 +74,7 @@ module SchemaTools
           obj_val = if obj_or_hash.is_a? Hash
                       obj_or_hash[ match[0] ]
                     else
-                      obj.send(match[0]) if obj.respond_to?(match[0])
+                      obj_or_hash.send(match[0]) if obj_or_hash.respond_to?(match[0])
                     end
           replaces << ["{#{match[0]}}", obj_val] if obj_val
         end
