@@ -33,6 +33,11 @@ describe SchemaTools::Reader do
       schema[:properties][:numbers].should_not be_empty
     end
 
+    it 'should deal with referenced parameters properly' do
+      schema = SchemaTools::Reader.read(:includes_basic_definitions)
+      schema[:properties].should be_empty
+    end
+
     it 'should enforce correct parameter usage' do
       expect { SchemaTools::Reader.read(:contact, []) }.to raise_error ArgumentError
     end

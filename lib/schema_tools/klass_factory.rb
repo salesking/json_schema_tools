@@ -35,7 +35,7 @@ module SchemaTools
         namespace = "#{namespace}".constantize if namespace.is_a?(String) || namespace.is_a?(Symbol)
         # bake classes
         schemata.each do |schema|
-          next if namespace.const_defined?(schema['name'].classify, false)
+          next if !schema['name'] or namespace.const_defined?(schema['name'].classify, false)
           build_class(schema, namespace, reader)
         end
       end

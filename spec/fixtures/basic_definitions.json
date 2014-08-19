@@ -1,0 +1,13 @@
+{
+    "definitions": {
+        "id": {
+            "description": "some description",
+            "readonly": true,
+            "type": "integer"
+        },
+        "some_other_property": {
+            "description": "whatever",
+            "type": "string"
+        }
+    }
+}

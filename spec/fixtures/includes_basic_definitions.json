@@ -1,0 +1,19 @@
+{
+  "type":"object",
+  "title":"test_object",
+  "name":"test_object",
+  "dscription":"test_object",
+  "properties": {
+    "id":{
+      "$ref" : "./basic_definitions.json#definitions/id"
+    },
+    "id_adding_param": {
+      "$ref"      : "./basic_definitions.json#definitions/id",
+      "maxLength" : 10
+    },
+    "id_overriding_param" : {
+      "$ref"        : "./basic_definitions.json#definitions/id",
+      "description" : "some other description"
+    }
+  }
+}
