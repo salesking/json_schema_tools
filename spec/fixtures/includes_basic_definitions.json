@@ -1,7 +1,7 @@
 {
   "type":"object",
   "title":"test_object",
-  "name":"test_object",
+  "name":"includes_basic_definitions",
   "dscription":"test_object",
   "properties": {
     "id":{
