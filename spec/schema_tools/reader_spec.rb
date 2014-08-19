@@ -35,7 +35,9 @@ describe SchemaTools::Reader do
 
     it 'should deal with referenced parameters properly' do
       schema = SchemaTools::Reader.read(:includes_basic_definitions)
-      schema[:properties].should be_empty
+      schema[:properties].should_not be_empty
+      schema[:properties].length.should eq 3
+      schema[:properties][:id][:description].should eq "some description"
     end
 
     it 'should enforce correct parameter usage' do
