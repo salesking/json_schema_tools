@@ -1,36 +1,50 @@
 # encoding: utf-8
+
+require 'json'
+
 module SchemaTools
 
   # 
   # super basic resolving of JSON Pointer stuff in order
   # to be able to load $ref parameter.
   #
+  # 
+  # @params json_pointer the JSON Pointer expression to evaluate
+  # @schema if the pointer refers to a local schema, this is this
+  #         the hash to evaluate it against. If the pointer contains
+  #         a uri to a referenced schema, an attempt is made to load
+  #
   # $refs in JSON Schema are defined in JSON Pointer syntax:
   # http://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-07
 
-  def SchemaTools.load_json_pointer json_pointer
+  def SchemaTools.load_json_pointer json_pointer, schema = {}
     # JSON Pointer is a big, abandoned WIP and we're going to 
     # start by only implementing the part's we need ...
-    if ! json_pointer =~ /^(.*)#(.*)/ 
-      raise "invalid json pointer: #{}"
+    if nil ==  (json_pointer =~ /^(.*)#(.*)/ )
+      raise "invalid json pointer: #{json_pointer}"
     end
 
-    uri     = $1
+    uri     = $1.strip
     pointer = $2
-    json    = nil
-
-    open(uri) {|f|  json = JSON.parse(f.read) }
-
     
-    return SchemaTools._retrieve_pointer_from_object json, pointer
+    if ! uri.empty?
+      uri = URI.parse(uri)
+      raise "must currently be a relative uri: #{json_pointer}" if uri.absolute?
+      path = SchemaTools.schema_path + "/" + uri.path
+      open (path) {|f| 
+        schema = JSON.parse(f.read)
+      }
+    end
+
+    return SchemaTools._retrieve_pointer_from_object pointer, schema
   end
+
 
  
   def SchemaTools._retrieve_pointer_from_object pointer, object
     # assume path to be the JSONPointer expression:
     #  json/pointer/expression
     # and obj to be the ruby hash representation of the json
-    
     path = pointer.is_a?(Array) ? pointer : pointer.split("/")
 
     while object != nil && component = path.shift
@@ -38,18 +52,6 @@ module SchemaTools
       component = component.to_i if object.is_a?(Array) && component =~ /^\d+$/
       object = object[component]
     end
-    
-#    # if we did not find anything and the last element of the 
-#    # pointer was a number this might have been a reference into
-#    # an array.
-#    if prev && prev.is_a?(::Array)
-#      # if the last component in the path was a number
-#      if component =~ /^\d+$/ 
-#        idx    = component.to_i
-#        object = prev[idx]
-#        return SchemaTools._retrieve_pointer_from_object path, object
-#      end
-#    end
 
     return object
   end

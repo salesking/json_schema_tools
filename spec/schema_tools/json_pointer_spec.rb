@@ -33,6 +33,7 @@ describe SchemaTools do
       found.should be_nil
 
     end
+
     it 'should handle embedded json pointer arrays' do
       obj = { "bla" => {
         "blub" => :success,
@@ -46,5 +47,25 @@ describe SchemaTools do
       found = SchemaTools._retrieve_pointer_from_object pointer, obj
       found.should eq 2
     end
+  end
+
+  it 'should throw an exception on an invalid path' do
+    obj = {}
+    expect {
+      SchemaTools.load_json_pointer("bla") 
+    }.to raise_error
+  end
+
+  it 'should reject absolute URI part' do
+    obj = {}
+    expect {
+      SchemaTools.load_json_pointer("http://www.example.com/#some/stuff")
+    }.to raise_error
+  end
+
+  it 'should load local ref' do 
+    pointer = "./basic_definitions.json#definitions"
+    obj = SchemaTools.load_json_pointer(pointer)
+    obj.length.should eq 2 
   end
 end
