@@ -38,6 +38,8 @@ describe SchemaTools::Reader do
       schema[:properties].should_not be_empty
       schema[:properties].length.should eq 3
       schema[:properties][:id][:description].should eq "some description"
+
+      schema[:properties][:id]["$ref"].should be_nil
     end
 
     it 'should enforce correct parameter usage' do

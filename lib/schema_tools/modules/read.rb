@@ -57,6 +57,7 @@ module SchemaTools
             schema[:properties] = ext[:properties].merge(schema[:properties])
           end
         end
+        _handle_reference_properties schema
         registry[ schema_name ] = schema
       end
 
@@ -73,6 +74,20 @@ module SchemaTools
           schemas << read(schema_name, path)
         end
         schemas
+      end
+
+      def _handle_reference_properties schema
+        return unless schema["properties"]
+        schema["properties"].each { |key, value|
+          next unless value["$ref"]
+
+          json_pointer = value["$ref"]
+          values_from_pointer = SchemaTools.load_json_pointer json_pointer
+          schema["properties"][key].merge!(values_from_pointer) {|key, old, new| 
+            old
+          }
+          schema["properties"][key].delete("$ref")
+        }
       end
     end
   end
