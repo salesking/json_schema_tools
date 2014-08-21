@@ -9,6 +9,7 @@ require 'schema_tools/reader'
 require 'schema_tools/cleaner'
 require 'schema_tools/hash'
 require 'schema_tools/klass_factory'
+require 'schema_tools/ref_resolver'
 
 
 module SchemaTools
