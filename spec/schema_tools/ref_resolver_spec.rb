@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SchemaTools do
+describe SchemaTools::RefResolver do
   context 'class methods' do
     it 'should handle simple json pointer' do
       obj = { "bla" => {
@@ -8,14 +8,14 @@ describe SchemaTools do
       }}
 
       pointer = "bla/blub"
-      found = SchemaTools._retrieve_pointer_from_object pointer, obj
+      found = SchemaTools::RefResolver._retrieve_pointer_from_object pointer, obj
       # not sure what I am doing wrong here, but:
-      #    found.should eq :success 
+      #    found.should eq :success
       # does not work because
       #    undefined method `eq'
       found.should eq :success
 
-      found = SchemaTools._retrieve_pointer_from_object "non/existant/path", obj
+      found = SchemaTools::RefResolver._retrieve_pointer_from_object "non/existant/path", obj
       found.should  be_nil
     end
 
@@ -25,11 +25,11 @@ describe SchemaTools do
         "bling" => [3,2,1]
       }}
       pointer = "bla/bling/2"
-      found = SchemaTools._retrieve_pointer_from_object pointer, obj
+      found = SchemaTools::RefResolver._retrieve_pointer_from_object pointer, obj
       found.should eq 1
 
       pointer = "bla/bling/3"
-      found = SchemaTools._retrieve_pointer_from_object pointer, obj
+      found = SchemaTools::RefResolver._retrieve_pointer_from_object pointer, obj
       found.should be_nil
 
     end
@@ -37,14 +37,14 @@ describe SchemaTools do
     it 'should handle embedded json pointer arrays' do
       obj = { "bla" => {
         "blub" => :success,
-        "bling" => [ 
+        "bling" => [
           {"num" => 3},
           {"num" => 2},
           {"num" => 1}
         ]
       }}
       pointer = "bla/bling/1/num"
-      found = SchemaTools._retrieve_pointer_from_object pointer, obj
+      found = SchemaTools::RefResolver._retrieve_pointer_from_object pointer, obj
       found.should eq 2
     end
   end
@@ -52,20 +52,20 @@ describe SchemaTools do
   it 'should throw an exception on an invalid path' do
     obj = {}
     expect {
-      SchemaTools.load_json_pointer("bla") 
+      SchemaTools::RefResolver.load_json_pointer("bla")
     }.to raise_error
   end
 
   it 'should reject absolute URI part' do
     obj = {}
     expect {
-      SchemaTools.load_json_pointer("http://www.example.com/#some/stuff")
+      SchemaTools::RefResolver.load_json_pointer("http://www.example.com/#some/stuff")
     }.to raise_error
   end
 
-  it 'should load local ref' do 
+  it 'should load local ref' do
     pointer = "./basic_definitions.json#definitions"
-    obj = SchemaTools.load_json_pointer(pointer)
-    obj.length.should eq 2 
+    obj = SchemaTools::RefResolver.load_json_pointer(pointer)
+    obj.length.should eq 2
   end
 end

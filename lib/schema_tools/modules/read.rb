@@ -76,14 +76,19 @@ module SchemaTools
         schemas
       end
 
-      def _handle_reference_properties schema
+      # Merge referenced property definitions into the given schema.
+      # e.g. each object has an updated_at field which we define in a single
+      # location(external file) instead of repeating the property def in each
+      # schema.
+      # @param [HashWithIndifferentAccess] schema - single schema
+      def _handle_reference_properties(schema)
         return unless schema["properties"]
         schema["properties"].each { |key, value|
           next unless value["$ref"]
 
           json_pointer = value["$ref"]
-          values_from_pointer = SchemaTools.load_json_pointer json_pointer
-          schema["properties"][key].merge!(values_from_pointer) {|key, old, new| 
+          values_from_pointer = RefResolver.load_json_pointer json_pointer
+          schema["properties"][key].merge!(values_from_pointer) {|key, old, new|
             old
           }
           schema["properties"][key].delete("$ref")
