@@ -57,6 +57,29 @@ module SchemaTools
           end
         end
 
+        # second try by simply using link rel as method name, to be aliased later
+        # if href includes placeholder make it an instance method
+        def build_methods(link, base_url=nil)
+          if link['rel'].match(/{(\w+)}/)
+            #instance mehtod
+          else
+            # class methods
+            klass.define_class_method 'find' do |*args|
+              id, request_opts = args[0], args[1]
+              url_path = SchemaTools::Modules::Hash.parse_placeholders(link['href'],{id: id})
+              method = link['method'] || 'GET'
+              # setup request
+              connection = Excon.new(base_url)
+              opts = {
+                method: link['method']|| 'DELETE',
+                path: url_path,
+              }
+              # before_find(request)
+              response = connection.request(opts)
+            end
+          end
+        end
+
         def build_methods_from_link(link, base_url=nil)
           case link['rel']
             when 'self'
