@@ -42,6 +42,12 @@ module SchemaTools
         elsif path_or_schema.is_a?(::String) || path_or_schema.nil?
           path       = path_or_schema
           file_path  = File.join(path || SchemaTools.schema_path, "#{schema_name}.json")
+          unless File.exist?(file_path)
+            # check if file exists else try to find first real path in sub-dirs
+            recursive_search = Dir.glob( File.join(SchemaTools.schema_path, '**/*', "#{schema_name}.json"))[0]
+            # use only if we found something, else keep path which will throw error on file.open later
+            file_path = recursive_search || file_path
+          end
         else
           raise ArgumentError, 'Second parameter must be a path or a schema!'
         end
