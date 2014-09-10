@@ -28,7 +28,8 @@ module SchemaTools
       # @param [Hash{Symbol=>Mixed}] opts additional options
       # @options opts [String|Symbol] :class_name used as hash key. Should be
       # a lowercase underscored name and it MUST have an existing schema file.
-      # Use it to override the default, which is obj.class.name
+      # Use it to override the default, which is obj.class.name. Only used for
+      # top-level object NOT nested objects
       # @options opts [Array<String>] :fields to return. If not set all schema
       # properties are used.
       # @options opts [String] :path of the schema files overriding global one
@@ -71,8 +72,10 @@ module SchemaTools
         schema['properties'].each do |field, prop|
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
+            opts.delete(:class_name)
             data[field] = parse_list(obj, field, prop, opts)
           elsif prop['type'] == 'object' # a singular related object
+            opts.delete(:class_name)
             data[field] = parse_object(obj, field, prop, opts)
           else # a simple field is only added if the object knows it
             data[field] = obj.send(field) if obj.respond_to?(field)
@@ -141,6 +144,11 @@ module SchemaTools
         res = nil
         if obj.respond_to?( field ) && rel_obj = obj.send( field )
           if prop['properties'] && prop['properties']['$ref']
+            res = from_schema(rel_obj, opts)
+          elsif prop['oneOf']
+            # auto-detects which schema to use depending on the rel_object type
+            # Simpler than detecting the object type or $ref to use inside the
+            # oneOf array
             res = from_schema(rel_obj, opts)
           else
             # NO recursion directly get values from related object. Does
