@@ -1,0 +1,15 @@
+{
+  "type":"object",
+  "title":"test_oneOf_object",
+  "name":"one_of_definition",
+  "description":"test_object parsing of nested oneOf object definition",
+  "properties": {
+    "person": {
+      "type" : "object",
+      "oneOf" : [
+       { "$ref" : "./client.json.json#properties"},
+       { "$ref" : "./contact.json.json#properties"}
+      ]
+    }
+  }
+}

@@ -5,7 +5,7 @@ require 'spec_helper'
 # json schema is derived from it
 ################################################################################
 class Client
-  attr_accessor :first_name, :id, :addresses,  :work_address
+  attr_accessor :first_name, :id, :addresses, :work_address
 end
 class Address
   attr_accessor :city, :zip
@@ -13,6 +13,10 @@ end
 
 class Contact
   attr_accessor :first_name, :last_name, :addresses, :id
+  end
+
+class OneOfDefinition
+  attr_accessor :person
 end
 
 # see fixtures/lead.json
@@ -69,12 +73,12 @@ describe SchemaTools::Hash do
       hash['_class_name'].should == 'contact'
     end
 
-    it 'should have _links on object if exclude root' do
+    it 'has _links on object if exclude root' do
       hash = SchemaTools::Hash.from_schema(contact, exclude_root: true, class_name: :client)
       hash['_links'].length.should == 7
     end
 
-    it 'should have _class_name on object if exclude root' do
+    it 'has _class_name on object if exclude root' do
       hash = SchemaTools::Hash.from_schema(contact, exclude_root: true, class_name: :client)
       hash['_class_name'].should == 'client'
     end
@@ -84,17 +88,17 @@ describe SchemaTools::Hash do
 
     let(:client){Client.new}
 
-    it 'should have an empty array if values are missing' do
+    it 'has an empty array if values are missing' do
       hash = SchemaTools::Hash.from_schema(client)
       hash['client']['addresses'].should == []
     end
 
-    it 'should have nil if nested object is missing' do
+    it 'has nil if nested object is missing' do
       hash = SchemaTools::Hash.from_schema(client)
       hash['client']['work_address'].should be_nil
     end
 
-    it 'should have nested array values' do
+    it 'has nested array values' do
       a1 = Address.new
       a1.city = 'Cologne'
       a1.zip = 50733
@@ -103,7 +107,7 @@ describe SchemaTools::Hash do
       hash['client']['addresses'].should == [{"address"=>{"city"=>"Cologne", "zip"=>50733}}]
     end
 
-    it 'should have nested array values without root' do
+    it 'has nested array values without root' do
       a1 = Address.new
       a1.city = 'Cologne'
       a1.zip = 50733
@@ -112,7 +116,7 @@ describe SchemaTools::Hash do
       hash['addresses'].should == [{"city"=>"Cologne", "zip"=>50733, "_class_name"=>"address"}]
     end
 
-    it 'should have nested object value' do
+    it 'has nested object value' do
       a1 = Address.new
       a1.city = 'Cologne'
       a1.zip = 50733
@@ -121,13 +125,25 @@ describe SchemaTools::Hash do
       hash['client']['work_address'].should == {"address"=>{"city"=>"Cologne", "zip"=>50733}}
     end
 
-    it 'should have nested object value without root' do
+    it 'has nested object value without root' do
       a1 = Address.new
       a1.city = 'Cologne'
       a1.zip = 50733
       client.work_address = a1
       hash = SchemaTools::Hash.from_schema(client, exclude_root: true)
       hash['work_address'].should == {"city"=>"Cologne", "zip"=>50733, "_class_name"=>"address"}
+    end
+
+    it 'has nested oneOf type object ' do
+      contact = Contact.new
+      contact.first_name = 'Pit'
+
+      i = OneOfDefinition.new
+      i.person = contact
+
+      hash = SchemaTools::Hash.from_schema(i, exclude_root: true)
+      hash['person']['first_name'].should == 'Pit'
+      hash['person']['_class_name'].should == 'contact'
     end
 
   end
@@ -168,7 +184,7 @@ describe SchemaTools::Hash do
       SchemaTools::Reader.registry_reset
     end
 
-    it 'should have links' do
+    it 'has links' do
       hash = SchemaTools::Hash.from_schema(client)
       hash['links'].length.should == 7
     end

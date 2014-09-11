@@ -9,7 +9,6 @@ describe SchemaTools::Reader do
 
     it 'reads all schemas' do
       schemas = SchemaTools::Reader.read_all
-      schemas.length.should == 7
       schemas.length.should == SchemaTools::Reader.registry.length
       person_schema = schemas.detect{|i| i['name'] = 'person'}
       person_schema.should be
