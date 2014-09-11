@@ -2,20 +2,35 @@ require 'spec_helper'
 
 describe SchemaTools::Reader do
 
-  context 'class methods' do
+  context '.read_all' do
+    after :each do
+      SchemaTools::Reader.registry_reset
+    end
+
+    it 'reads all schemas' do
+      schemas = SchemaTools::Reader.read_all
+      schemas.length.should == 7
+      schemas.length.should == SchemaTools::Reader.registry.length
+      person_schema = schemas.detect{|i| i['name'] = 'person'}
+      person_schema.should be
+    end
+
+  end
+
+  context '.read' do
 
     after :each do
       SchemaTools::Reader.registry_reset
     end
 
-    it 'should read a single schema' do
+    it 'reads a single schema' do
       schema = SchemaTools::Reader.read(:page)
       schema[:name].should == 'page'
       schema[:properties].should_not be_empty
       SchemaTools::Reader.registry.should_not be_empty
     end
 
-    it 'should read a schema with inheritance' do
+    it 'reads a schema with inheritance' do
       schema = SchemaTools::Reader.read(:lead) # extends contact
 
       SchemaTools::Reader.registry[:contact].should_not be_empty
@@ -25,7 +40,7 @@ describe SchemaTools::Reader do
       schema[:properties][:lead_source].should_not be_empty
     end
 
-    it 'should read a schema from a Ruby Hash' do
+    it 'reads a schema from a Ruby Hash' do
       schema = SchemaTools::Reader.read(:numbers, schema_as_ruby_object)
 
       SchemaTools::Reader.registry[:numbers].should_not be_empty
@@ -33,7 +48,7 @@ describe SchemaTools::Reader do
       schema[:properties][:numbers].should_not be_empty
     end
 
-    it 'should deal with referenced parameters properly' do
+    it 'deals with referenced parameters properly' do
       schema = SchemaTools::Reader.read(:includes_basic_definitions)
       schema[:properties].should_not be_empty
       schema[:properties].length.should eq 3
@@ -42,8 +57,13 @@ describe SchemaTools::Reader do
       schema[:properties][:id]["$ref"].should be_nil
     end
 
-    it 'should enforce correct parameter usage' do
+    it 'enforces correct parameter usage' do
       expect { SchemaTools::Reader.read(:contact, []) }.to raise_error ArgumentError
+    end
+
+    it 'reads from sub folder' do
+      schema = SchemaTools::Reader.read(:person)
+      schema[:name].should == 'person'
     end
   end
 
@@ -51,14 +71,14 @@ describe SchemaTools::Reader do
 
     let(:reader){ SchemaTools::Reader.new }
 
-    it 'should read a single schema' do
+    it 'reads a single schema' do
       schema = reader.read(:client)
       schema[:name].should == 'client'
       schema[:properties].should_not be_empty
       reader.registry[:client].should_not be_empty
     end
 
-    it 'should read a single schema from Ruby Hash' do
+    it 'reads a single schema from Ruby Hash' do
       schema = reader.read(:numbers, schema_as_ruby_object)
       schema[:name].should == 'numbers'
       schema[:properties].should_not be_empty

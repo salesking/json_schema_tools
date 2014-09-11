@@ -31,7 +31,7 @@ module SchemaTools
       # @param [String|Symbol] schema name to be read from schema path directory
       # @param [String|Hash] either the path to retrieve schema_name from,
       #                      or a Schema in Ruby hash form
-      # @return[HashWithIndifferentAccess] schema as hash
+      # @return[HashWithIndifferentAccess|Nil] schema as hash, nil if schema is not an object
       def read(schema_name, path_or_schema=nil)
         schema_name = schema_name.to_sym
         return registry[schema_name] if registry[schema_name]
@@ -55,6 +55,8 @@ module SchemaTools
         plain_data ||= File.open(file_path, 'r'){|f| f.read}
 
         schema = ActiveSupport::JSON.decode(plain_data).with_indifferent_access
+        # only import object definitions, shared property definitions are handled separate
+        return unless schema[:type] == 'object'
         if schema[:extends]
           extends = schema[:extends].is_a?(Array) ? schema[:extends] : [ schema[:extends] ]
           extends.each do |ext_name|
@@ -67,18 +69,27 @@ module SchemaTools
         registry[ schema_name ] = schema
       end
 
-      # Read all available schemas from a given path(folder) and return
-      # them as array
+      # Read all available schemas from a given path(folder +subfolders) and
+      # return the found object definitions them as array. Also populates the
+      # registry
       #
       # @param [String] path to schema files
       # @return [Array<HashWithIndifferentAccess>] array of schemas as hash
       def read_all(path=nil)
         schemas = []
-        file_path = File.join(path || SchemaTools.schema_path, '*.json')
-        Dir.glob( file_path ).each do |file|
+        file_paths = if path
+                       [File.join(path, '*.json')]
+                     else
+                       [ File.join( SchemaTools.schema_path, '*.json'),
+                         File.join( SchemaTools.schema_path, '**/*', '*.json')
+                       ]
+                     end
+
+        Dir.glob( file_paths ).each do |file|
           schema_name = File.basename(file, '.json').to_sym
           schemas << read(schema_name, path)
         end
+        schemas.compact!
         schemas
       end
 
