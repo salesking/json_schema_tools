@@ -8,3 +8,7 @@ Gemfile.lock
 doc/
 tmp/
 *.swp
+.idea
+.ruby-gemset
+.ruby-version
+tags
