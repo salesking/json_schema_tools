@@ -123,11 +123,11 @@ module SchemaTools
         res = []
         if obj.respond_to?( field ) && rel_objects = obj.send( field )
           rel_objects.each do |rel_obj|
-            res << if prop['properties'] && prop['properties']['$ref']
+            res << if prop['properties'] #&& prop['properties']['$ref']
                       #got schema describing the objects
                       from_schema(rel_obj, opts)
-                    else
-                      rel_obj
+                    #else
+                    #  rel_obj
                     end
           end
         end
@@ -143,20 +143,20 @@ module SchemaTools
       def parse_object(obj, field, prop, opts)
         res = nil
         if obj.respond_to?( field ) && rel_obj = obj.send( field )
-          if prop['properties'] && prop['properties']['$ref']
+          if prop['properties'] # && prop['properties']['$ref']
             res = from_schema(rel_obj, opts)
           elsif prop['oneOf']
             # auto-detects which schema to use depending on the rel_object type
             # Simpler than detecting the object type or $ref to use inside the
             # oneOf array
             res = from_schema(rel_obj, opts)
-          else
-            # NO recursion directly get values from related object. Does
-            # NOT allow deeper nesting so you MUST define an own schema to be save
-            res = { }
-            prop['properties'].each do |fld, prp|
-              res[fld] = rel_obj.send(fld) if rel_obj.respond_to?(fld)
-            end
+#          else
+#            # NO recursion directly get values from related object. Does
+#            # NOT allow deeper nesting so you MUST define an own schema to be save
+#            res = { }
+#            prop['properties'].each do |fld, prp|
+#              res[fld] = rel_obj.send(fld) if rel_obj.respond_to?(fld)
+#            end
           end
         end
         res

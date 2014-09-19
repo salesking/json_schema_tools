@@ -8,6 +8,13 @@
         "some_other_property": {
             "description": "whatever",
             "type": "string"
+        },
+        "nested_object" : {
+          "type": "object",
+          "properties" : {
+            "prop1" : { "type" : "string"},
+            "prop2" : { "type" : "string"}
+          }
         }
     }
 }

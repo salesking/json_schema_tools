@@ -97,20 +97,30 @@ module SchemaTools
       # e.g. each object has an updated_at field which we define in a single
       # location(external file) instead of repeating the property def in each
       # schema.
+      # any hash found along the way is processed recursively, we look for a
+      # "$ref" param and resolve it. Other params are checked for nested hashes
+      # and those are processed.
       # @param [HashWithIndifferentAccess] schema - single schema
       def _handle_reference_properties(schema)
-        return unless schema["properties"]
-        schema["properties"].each { |key, value|
-          next unless value["$ref"]
 
-          json_pointer = value["$ref"]
+        def resolve_reference hash
+          json_pointer = hash["$ref"]
           values_from_pointer = RefResolver.load_json_pointer json_pointer
-          schema["properties"][key].merge!(values_from_pointer) {|key, old, new|
-            old
-          }
-          schema["properties"][key].delete("$ref")
-        }
-      end
+          hash.merge!(values_from_pointer) { |key, old, new| old }
+          hash.delete("$ref")
+        end
+
+        keys = schema.keys # in case you are wondering: RuntimeError: can't add a new key into hash during iteration
+        keys.each do |k|
+          v = schema[k]
+          if k == "$ref"
+            resolve_reference schema
+          elsif v.is_a?(ActiveSupport::HashWithIndifferentAccess)
+            _handle_reference_properties v
+          end
+        end
+
+      end # _handle_reference_properties
     end
   end
 end
