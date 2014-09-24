@@ -66,6 +66,6 @@ describe SchemaTools::RefResolver do
   it 'should load local ref' do
     pointer = "./basic_definitions.json#definitions"
     obj = SchemaTools::RefResolver.load_json_pointer(pointer)
-    obj.length.should eq 2
+    obj.length.should eq 3
   end
 end
