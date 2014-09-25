@@ -58,7 +58,6 @@ describe SchemaTools::Reader do
 
     it 'deals with nested referenced parameters properly' do
       schema = SchemaTools::Reader.read(:includes_deep_nested_refs)
-    puts schema
       schema[:properties].should_not be_empty
     end
 

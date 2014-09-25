@@ -1,6 +1,15 @@
 # Changelog JSON Schema Tools
 
 
+2014-09
+
+* support items definition for array type properties - BREAKS old simple property definitions
+* support oneOf definitions
+
+2014-08
+
+* add $ref resolver to merge property definitions from another file
+
 2013-10
 * allow all object properties in link href placeholders => contacts/{id}/{number}
 * add base_url option to schema hash creation. Prepends an url to all links of a rendered object
