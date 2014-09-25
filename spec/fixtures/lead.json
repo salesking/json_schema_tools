@@ -12,7 +12,7 @@
     "links_clicked":{
       "description": "Timestamps of clicks. Test nested array values without object reference",
       "type":"array",
-      "properties":{
+      "items":{
         "type": "string"
       }
     },

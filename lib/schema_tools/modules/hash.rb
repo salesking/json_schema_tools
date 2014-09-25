@@ -121,15 +121,28 @@ module SchemaTools
       # @return [Array<Hash{String=>String}>]
       def parse_list(obj, field, prop, opts)
         res = []
-        if obj.respond_to?( field ) && rel_objects = obj.send( field )
-          rel_objects.each do |rel_obj|
-            res << if prop['properties'] #&& prop['properties']['$ref']
-                      #got schema describing the objects
-                      from_schema(rel_obj, opts)
-                    #else
-                    #  rel_obj
-                    end
+        # TODO should we raise errors if one of those is missing?
+        return nil if !obj.respond_to?( field )
+        return nil if !prop['items']
+
+        rel_objects = obj.send( field )
+        # force an empty array if values are not present
+        return res if !rel_objects
+
+        if prop['items'].is_a?(Hash) || prop['items'].is_a?(ActiveSupport::HashWithIndifferentAccess)
+          # array of plain values e.g number, strings e.g
+          # "items": { "type": "string" },
+          # should we convert the values? according to the type?
+          if %w(string number integer boolean).include?(prop['items']['type'])
+            res = rel_objects
+          elsif prop['items']['type'] == 'object'
+            rel_objects.each { |rel_obj| res << from_schema(rel_obj, opts) }
           end
+        end
+
+        if prop['items'].is_a?(Array)
+          #TODO recurse
+          # res << rel_objects.each { |rel_obj| parse_list(rel_obj, field, prop opts) }
         end
         res
       end
@@ -142,22 +155,24 @@ module SchemaTools
       # @return [Array<Hash{String=>String}>]
       def parse_object(obj, field, prop, opts)
         res = nil
-        if obj.respond_to?( field ) && rel_obj = obj.send( field )
-          if prop['properties'] # && prop['properties']['$ref']
-            res = from_schema(rel_obj, opts)
-          elsif prop['oneOf']
-            # auto-detects which schema to use depending on the rel_object type
-            # Simpler than detecting the object type or $ref to use inside the
-            # oneOf array
-            res = from_schema(rel_obj, opts)
+        return if !obj.respond_to?( field )
+        rel_obj = obj.send( field )
+        return if !rel_obj
+
+        if prop['properties'] # && prop['properties']['$ref']
+          res = from_schema(rel_obj, opts)
+        elsif prop['oneOf']
+          # auto-detects which schema to use depending on the rel_object type
+          # Simpler than detecting the object type or $ref to use inside the
+          # oneOf array
+          res = from_schema(rel_obj, opts)
 #          else
-#            # NO recursion directly get values from related object. Does
+#            #TODO NO recursion directly get values from related object. Does
 #            # NOT allow deeper nesting so you MUST define an own schema to be save
 #            res = { }
 #            prop['properties'].each do |fld, prp|
 #              res[fld] = rel_obj.send(fld) if rel_obj.respond_to?(fld)
 #            end
-          end
         end
         res
       end

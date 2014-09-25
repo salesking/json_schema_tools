@@ -2,7 +2,7 @@
   "type": "object",
   "title": "Page",
   "name": "page",
-  "description": "A page of a PDF which can either belong to a PDF template or archived PDF.",
+  "description": "A page of a PDF which can either belong to a PDF template or archived PDF. Example taken from happyPDF",
   "properties": {
     "id": {
       "description": "The object identifier.",
@@ -57,11 +57,15 @@
       "type": "integer"
     },
     "blocks": {
-      "description": "Placeholder blocks on this page,, if it belongs to a PDF Template",
+      "description": "Placeholder blocks on this page, if it belongs to a PDF Template",
       "type": "array",
-      "properties": {"$ref":"./basic_definitions.json#definitions/nested_object/properties"}
+      "items" : {
+        "type" : "object",
+        "properties":{
+          "$ref": "./basic_definitions.json#definitions/nested_object/properties"
+        }
+      }
     }
-
   },
   "links": [
     {
