@@ -13,6 +13,7 @@ require 'schema_tools/ref_resolver'
 
 
 module SchemaTools
+  SCHEMA_BASE_TYPES = %w(string number integer boolean)
   class << self
 
     # @param [String] path to schema json files

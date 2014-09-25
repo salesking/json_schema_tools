@@ -3,7 +3,10 @@
 
 2014-09
 
-* support items definition for array type properties - BREAKS old simple property definitions
+* refacture Reader to de-reference all pointers when initialized
+* remove :exclude_root option for object to schema_hash BREAKING change if you want nesting define your schema accordingly
+* add :links option for object to schema_hash, to include the links inline in an object
+* support items definition for array type properties - BREAKING you must change old simple property definitions
 * support oneOf definitions
 
 2014-08
