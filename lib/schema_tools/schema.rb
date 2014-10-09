@@ -6,15 +6,15 @@ module SchemaTools
   # concerning where the Schema was loaded from in order to resolve relative paths.
 
   class Schema
-    # Schema may be initialized with either a filename or a hash
-    def initialize name_or_hash
+    #@param [String|Hash] name_or_hash Schema may be initialized with either a filename or a hash
+    def initialize(name_or_hash)
       case name_or_hash
-      when(::Hash) 
-        @hash = name_or_hash.with_indifferent_access
-      when(::String)
-        src = File.open(name_or_hash, 'r'){|f| f.read}
-        self.absolute_filename= name_or_hash
-        decode src
+        when (::Hash)
+          @hash = name_or_hash.with_indifferent_access
+        when (::String)
+          src = File.open(name_or_hash, 'r') { |f| f.read }
+          self.absolute_filename= name_or_hash
+          decode src
       end
       handle_extends
       resolve_refs
@@ -24,13 +24,16 @@ module SchemaTools
     # Wrappers for internal Hash
     ##################################################################################
 
-    def [] key
+    # @param [String|Symbol] key
+    def [](key)
       @hash[key]
     end
 
-    def []= key, value
+    # @param [String|Symbol] key
+    # @param [Mixed] value e.g String|Array|Hash
+    def []=(key, value)
       @hash[key] = value
-    end 
+    end
 
     def empty?
       @hash.empty?
@@ -40,7 +43,7 @@ module SchemaTools
       @hash.keys
     end
 
-    def == other
+    def ==(other)
       case other
         when (::Hash)
           return other.with_indifferent_access == hash
@@ -59,9 +62,10 @@ module SchemaTools
 
 
     # set the filename the Schema was loaded from
-    def absolute_filename= fn
+    # @param [String] fn
+    def absolute_filename=(fn)
       @absolute_filename = File.absolute_path(fn)
-      @absolute_dir      = File.dirname (@absolute_filename)
+      @absolute_dir = File.dirname (@absolute_filename)
     end
 
     # retrieve the filename the Schema was loaded from or nil if the Schema
@@ -85,7 +89,8 @@ module SchemaTools
 
     private
 
-    def decode src
+    # @param [String] src schema json string
+    def decode(src)
       @hash = ActiveSupport::JSON.decode(src).with_indifferent_access
     end
 
@@ -110,7 +115,7 @@ module SchemaTools
     # @param [HashWithIndifferentAccess] schema - single schema
     def resolve_refs schema = nil
       schema ||= @hash
-      
+
        def resolve_reference hash
           json_pointer = hash["$ref"]
           values_from_pointer = RefResolver.load_json_pointer json_pointer, self
@@ -131,4 +136,4 @@ module SchemaTools
     end
   end
 end
-  
+
