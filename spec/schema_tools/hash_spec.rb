@@ -45,43 +45,33 @@ describe SchemaTools::Hash do
 
     it 'should return hash' do
       hash = SchemaTools::Hash.from_schema(contact)
-      hash['contact']['last_name'].should == 'Paul'
+      hash['last_name'].should == 'Paul'
     end
 
     it 'should use custom schema path' do
       custom_path = File.expand_path('../../fixtures', __FILE__)
       hash = SchemaTools::Hash.from_schema(contact, path: custom_path)
-      hash['contact']['last_name'].should == 'Paul'
+      hash['last_name'].should == 'Paul'
     end
 
     it 'should use custom schema' do
       hash = SchemaTools::Hash.from_schema(contact, class_name: :client)
-      hash['client']['last_name'].should == 'Paul'
+      hash['last_name'].should == 'Paul'
     end
 
     it 'should use only give fields' do
       hash = SchemaTools::Hash.from_schema(contact, fields: ['id', 'last_name'])
-      hash['contact'].keys.length.should == 2
-      hash['contact']['last_name'].should == contact.last_name
-      hash['contact']['id'].should == contact.id
-      hash['contact']['first_name'].should be_nil
-    end
-
-    it 'should exclude root' do
-      hash = SchemaTools::Hash.from_schema(contact, exclude_root: true)
-      hash['last_name'].should == 'Paul'
-      hash['_class_name'].should == 'contact'
+      hash.keys.length.should == 2
+      hash['last_name'].should == contact.last_name
+      hash['id'].should == contact.id
+      hash['first_name'].should be_nil
     end
 
     it 'has _links on object if exclude root' do
-      hash = SchemaTools::Hash.from_schema(contact, exclude_root: true, class_name: :client)
+      hash = SchemaTools::Hash.from_schema(contact, links: true, class_name: :client)
       hash['_links'].length.should == 7
     end
 
-    it 'has _class_name on object if exclude root' do
-      hash = SchemaTools::Hash.from_schema(contact, exclude_root: true, class_name: :client)
-      hash['_class_name'].should == 'client'
-    end
   end
 
   context 'with nested values referencing a schema' do
@@ -90,12 +80,12 @@ describe SchemaTools::Hash do
 
     it 'has an empty array if values are missing' do
       hash = SchemaTools::Hash.from_schema(client)
-      hash['client']['addresses'].should == []
+      hash['addresses'].should == []
     end
 
     it 'has nil if nested object is missing' do
       hash = SchemaTools::Hash.from_schema(client)
-      hash['client']['work_address'].should be_nil
+      hash['work_address'].should be_nil
     end
 
     it 'has nested array values' do
@@ -104,7 +94,7 @@ describe SchemaTools::Hash do
       a1.zip = 50733
       client.addresses = [a1]
       hash = SchemaTools::Hash.from_schema(client)
-      hash['client']['addresses'].should == [{"address"=>{"city"=>"Cologne", "zip"=>50733}}]
+      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>50733}]
     end
 
     it 'has nested array values without root' do
@@ -113,7 +103,7 @@ describe SchemaTools::Hash do
       a1.zip = 50733
       client.addresses = [a1]
       hash = SchemaTools::Hash.from_schema(client, exclude_root: true)
-      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>50733, "_class_name"=>"address"}]
+      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>50733}]
     end
 
     it 'has nested object value' do
@@ -122,16 +112,7 @@ describe SchemaTools::Hash do
       a1.zip = 50733
       client.work_address = a1
       hash = SchemaTools::Hash.from_schema(client)
-      hash['client']['work_address'].should == {"address"=>{"city"=>"Cologne", "zip"=>50733}}
-    end
-
-    it 'has nested object value without root' do
-      a1 = Address.new
-      a1.city = 'Cologne'
-      a1.zip = 50733
-      client.work_address = a1
-      hash = SchemaTools::Hash.from_schema(client, exclude_root: true)
-      hash['work_address'].should == {"city"=>"Cologne", "zip"=>50733, "_class_name"=>"address"}
+      hash['work_address'].should == {"city"=>"Cologne", "zip"=>50733}
     end
 
     it 'has nested oneOf type object ' do
@@ -143,7 +124,6 @@ describe SchemaTools::Hash do
 
       hash = SchemaTools::Hash.from_schema(i, exclude_root: true)
       hash['person']['first_name'].should == 'Pit'
-      hash['person']['_class_name'].should == 'contact'
     end
 
   end
@@ -164,12 +144,12 @@ describe SchemaTools::Hash do
     end
 
     it 'should create array with values' do
-      @hash['lead']['links_clicked'].should == lead.links_clicked
+      @hash['links_clicked'].should == lead.links_clicked
     end
 
     it 'should create object with values' do
-      @hash['lead']['conversion']['from'].should == lead.conversion.from
-      @hash['lead']['conversion']['to'].should == lead.conversion.to
+      @hash['conversion']['from'].should == lead.conversion.from
+      @hash['conversion']['to'].should == lead.conversion.to
     end
 
   end
@@ -185,19 +165,19 @@ describe SchemaTools::Hash do
     end
 
     it 'has links' do
-      hash = SchemaTools::Hash.from_schema(client)
-      hash['links'].length.should == 7
+      hash = SchemaTools::Hash.from_schema(client, links: true)
+      hash['_links'].length.should == 7
     end
 
     it 'should prepend base_url' do
-      hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com')
-      hash['links'].first['href'].should include( 'http://json-hell.com')
+      hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com', links: true)
+      hash['_links'].first['href'].should include( 'http://json-hell.com')
     end
 
     it 'should replace placeholders' do
       client.id = 123
-      hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com')
-      hash['links'].last['href'].should == 'http://json-hell.com/clients/123/Peter'
+      hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com', links: true)
+      hash['_links'].last['href'].should == 'http://json-hell.com/clients/123/Peter'
     end
 
   end

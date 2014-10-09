@@ -29,10 +29,9 @@ module SchemaTools
     if ! uri.empty?
       uri = URI.parse(uri)
       raise "must currently be a relative uri: #{json_pointer}" if uri.absolute?
+      # TODO use locale tools instance or base path from global SchemaTools.schema_path
       path = SchemaTools.schema_path + "/" + uri.path
-      open (path) {|f|
-        schema = JSON.parse(f.read)
-      }
+      open (path) {|f| schema = JSON.parse(f.read) }
     end
 
     return self._retrieve_pointer_from_object pointer, schema

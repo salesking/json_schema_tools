@@ -9,6 +9,10 @@
       "readonly":true,
       "type":"number"
     },
+    "contact_source":{
+      "description": "Where did the contact came from.",
+      "type":"string"
+    },
     "organisation":{
       "description": "Name of a company. ",
       "required" : true,

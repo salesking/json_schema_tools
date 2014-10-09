@@ -63,7 +63,12 @@
     "addresses":{
       "description": "A client can have many addresses, sorted by date descending(new first). Default address is the most recent one.",
       "type":"array",
-      "properties" : {"$ref":"./address.json#properties"}
+      "items" : {
+        "type" : "object",
+        "properties":{
+          "$ref":"./address.json#properties"
+        }
+      }
     },
     "work_address":{
       "description": "The work address as an example for a single nested/related object",

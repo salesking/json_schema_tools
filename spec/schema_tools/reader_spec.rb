@@ -56,6 +56,11 @@ describe SchemaTools::Reader do
       schema[:properties][:id]["$ref"].should be_nil
     end
 
+    it 'deals with nested referenced parameters properly' do
+      schema = SchemaTools::Reader.read(:includes_deep_nested_refs)
+      schema[:properties].should_not be_empty
+    end
+
     it 'enforces correct parameter usage' do
       expect { SchemaTools::Reader.read(:contact, []) }.to raise_error ArgumentError
     end

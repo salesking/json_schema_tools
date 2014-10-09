@@ -1,0 +1,21 @@
+{
+  "type" : "object",
+  "description" : "deeply nested",
+  "properties" : {
+    "contains_nesting" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "own_property" : { "type" : "string" },
+          "nested_ref"   : {
+            "type" : "object",
+            "properties" : {
+              "$ref" : "./basic_definitions.json#definitions/nested_object/properties"
+            }
+          }
+        }
+      }
+    }
+  }
+}

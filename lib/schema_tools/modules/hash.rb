@@ -34,8 +34,8 @@ module SchemaTools
       # properties are used.
       # @options opts [String] :path of the schema files overriding global one
       # @options opts [String] :base_url used in all links
-      # @options opts [Boolean] :exclude_root if set objects are not nested under
-      # their class name and the object hash gets _links and _class_name inline.
+      # @options opts [Boolean] :links if set the object hash gets its _links
+      # array inline.
       #
       # @return [Hash{String=>{String=>Mixed}}] The object as hash:
       #   { 'invoice' => {'title'=>'hello world', 'number'=>'4711' } }
@@ -47,31 +47,30 @@ module SchemaTools
         class_name = opts[:class_name] || real_class_name
 
         # get schema
-        schema = SchemaTools::Reader.read(class_name, opts[:path])
+        inline_schema = opts.delete(:schema) if opts[:schema].present?
+        schema =  inline_schema || SchemaTools::Reader.read(class_name, opts[:path])
+
         # iterate over the defined schema fields
         data = parse_properties(obj, schema, opts)
-        #get links if present
-        links = parse_links(obj, schema, opts)
-
-        if opts[:exclude_root]
-          hsh = data
-          hsh['_class_name'] = "#{class_name}"
-          links && hsh['_links'] = links
-        else
-          hsh = { "#{class_name}" => data }
-          links && hsh['links'] = links
+        if opts[:links]
+          links = parse_links(obj, schema, opts)
+          links && data['_links'] = links
         end
-        hsh
+        data
       end
 
       private
 
+      # @param [Object] obj from which to grab the properties
+      # @param [Hash] schema
+      # @param [Hash] opts
       def parse_properties(obj, schema, opts)
         fields = opts[:fields]
         data = {}
         schema['properties'].each do |field, prop|
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
+            # ensure the nested object gets its own class name
             opts.delete(:class_name)
             data[field] = parse_list(obj, field, prop, opts)
           elsif prop['type'] == 'object' # a singular related object
@@ -121,15 +120,28 @@ module SchemaTools
       # @return [Array<Hash{String=>String}>]
       def parse_list(obj, field, prop, opts)
         res = []
-        if obj.respond_to?( field ) && rel_objects = obj.send( field )
-          rel_objects.each do |rel_obj|
-            res << if prop['properties'] && prop['properties']['$ref']
-                      #got schema describing the objects
-                      from_schema(rel_obj, opts)
-                    else
-                      rel_obj
-                    end
+        # TODO should we raise errors if one of those is missing?
+        return nil if !obj.respond_to?( field )
+        return nil if !prop['items']
+
+        rel_objects = obj.send( field )
+        # force an empty array if values are not present
+        return res if !rel_objects
+
+        if prop['items'].is_a?(Hash) || prop['items'].is_a?(ActiveSupport::HashWithIndifferentAccess)
+          # array of plain values e.g number, strings e.g
+          # "items": { "type": "string" },
+          # should we convert the values? according to the type?
+          if SCHEMA_BASE_TYPES.include?(prop['items']['type'])
+            res = rel_objects
+          elsif prop['items']['type'] == 'object'
+            rel_objects.each { |rel_obj| res << from_schema(rel_obj, opts) }
           end
+        end
+
+        if prop['items'].is_a?(Array)
+          #TODO recurse
+          # res << rel_objects.each { |rel_obj| parse_list(rel_obj, field, prop opts) }
         end
         res
       end
@@ -141,24 +153,19 @@ module SchemaTools
       # @param [Hash] opts to_schema options
       # @return [Array<Hash{String=>String}>]
       def parse_object(obj, field, prop, opts)
-        res = nil
-        if obj.respond_to?( field ) && rel_obj = obj.send( field )
-          if prop['properties'] && prop['properties']['$ref']
-            res = from_schema(rel_obj, opts)
-          elsif prop['oneOf']
-            # auto-detects which schema to use depending on the rel_object type
-            # Simpler than detecting the object type or $ref to use inside the
-            # oneOf array
-            res = from_schema(rel_obj, opts)
-          else
-            # NO recursion directly get values from related object. Does
-            # NOT allow deeper nesting so you MUST define an own schema to be save
-            res = { }
-            prop['properties'].each do |fld, prp|
-              res[fld] = rel_obj.send(fld) if rel_obj.respond_to?(fld)
-            end
-          end
-        end
+        return if !obj.respond_to?( field )
+        rel_obj = obj.send( field )
+        return if !rel_obj
+
+        res = if prop['properties']
+                opts[:schema] = prop
+                from_schema(rel_obj, opts)
+              elsif prop['oneOf']
+                # auto-detects which schema to use depending on the rel_object type
+                # Simpler than detecting the object type or $ref to use inside the
+                # oneOf array
+                from_schema(rel_obj, opts)
+              end
         res
       end
 

@@ -11,4 +11,6 @@ tmp/
 .idea
 .ruby-gemset
 .ruby-version
+*.swp
+*.swo
 tags
