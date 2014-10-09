@@ -31,12 +31,7 @@ module SchemaTools
     def []= key, value
       @hash[key] = value
     end 
-    
-    def merge schema
-      raise :hell unless schema[:properties]
-      @hash.merge schema[:properites]
-    end
-    
+
     def empty?
       @hash.empty?
     end
@@ -100,7 +95,7 @@ module SchemaTools
         extends.each do |ext_name|
           ext = Reader.read(ext_name, absolute_dir)
           # current schema props win
-          self[:properties] = ext[:properties].merge(self[:properties])
+          self[:properties] = ext[:properties].merge(self[:properties] || {})
         end
       end
     end

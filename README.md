@@ -245,6 +245,20 @@ reader = SchemaTools::Reader.new
 SchemaTools::KlassFactory.build reader: reader, path: HappyPdf::Schema.path
 ```
 
+## $ref
+
+Provides some basic support for JSON Pointer. JSON Pointer expressions must reference local
+files and must contain a fragment identifier, i.e.
+
+     ./some_include.json#properties
+
+is a resolvable pointer, while
+
+     http://example.com/public_schema.json
+
+is not.
+
+
 ## Real world examples
 
 * [DocTag ruby gem](https://github.com/docTag/doctag_rb) and [DocTag json-schema](https://github.com/docTag/doctag_json_schema)
