@@ -68,4 +68,10 @@ describe SchemaTools::RefResolver do
     obj = SchemaTools::RefResolver.load_json_pointer(pointer)
     obj.length.should eq 3
   end
+
+  it 'should load the entire document' do
+    pointer = "./basic_definitions.json#"
+    obj = SchemaTools::RefResolver.load_json_pointer(pointer)
+    obj["definitions"].keys.length.should eq 3
+  end
 end
