@@ -1,0 +1,6 @@
+{
+  "type" : "object",
+  "properties" : {
+    "$ref" : "../basic_definitions.json#definitions/nested_object/properties"
+  }
+}

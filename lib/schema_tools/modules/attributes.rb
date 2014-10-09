@@ -34,7 +34,8 @@ module SchemaTools
           reader          = opts[:reader] || SchemaTools::Reader
           schema_location = opts[:path]   || opts[:schema]
           # remember schema + name on class level
-          self.schema( reader.read(schema_name, schema_location) )
+
+          self.schema= reader.read(schema_name, schema_location)
           self.schema_name(schema_name)
           # make getter / setter
           self.schema[:properties].each do |key, prop|
@@ -45,8 +46,10 @@ module SchemaTools
         end
 
         # @param [Hash] schema_hash
-        def schema(schema_hash=nil)
-          @schema = schema_hash if schema_hash
+        def schema= schema_hash
+          @schema = schema_hash
+        end
+        def schema
           @schema
         end
 

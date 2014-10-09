@@ -16,7 +16,7 @@ module SchemaTools
   # @param [Hash] schema if the pointer refers to a local schema, this is this
   # the hash to evaluate it against. If the pointer contains a uri to a
   # referenced schema, an attempt is made to load
-  def self.load_json_pointer json_pointer, schema = {}
+  def self.load_json_pointer json_pointer, relative_to = nil
     # JSON Pointer is a big, abandoned WIP and we're going to
     # start by only implementing the part's we need ...
     if nil ==  (json_pointer =~ /^(.*)#(.*)/ )
@@ -25,12 +25,16 @@ module SchemaTools
 
     uri     = $1.strip
     pointer = $2
-
+    schema  = {}
     if ! uri.empty?
       uri = URI.parse(uri)
       raise "must currently be a relative uri: #{json_pointer}" if uri.absolute?
       # TODO use locale tools instance or base path from global SchemaTools.schema_path
-      path = SchemaTools.schema_path + "/" + uri.path
+      if relative_to
+        path = relative_to.absolute_dir + "/" + uri.path
+      else
+        path = SchemaTools.schema_path + "/" + uri.path
+      end
       open (path) {|f| schema = JSON.parse(f.read) }
     end
 

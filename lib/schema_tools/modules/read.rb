@@ -35,10 +35,9 @@ module SchemaTools
       def read(schema_name, path_or_schema=nil)
         schema_name = schema_name.to_sym
         return registry[schema_name] if registry[schema_name]
-
+        
         if path_or_schema.is_a?(::Hash)
-          path       = nil
-          plain_data = path_or_schema.to_json
+          schema = Schema.new(path_or_schema) 
         elsif path_or_schema.is_a?(::String) || path_or_schema.nil?
           path       = path_or_schema
           file_path  = File.join(path || SchemaTools.schema_path, "#{schema_name}.json")
@@ -48,25 +47,16 @@ module SchemaTools
             # use only if we found something, else keep path which will throw error on file.open later
             file_path = recursive_search || file_path
           end
+          schema = Schema.new(file_path)
         else
           raise ArgumentError, 'Second parameter must be a path or a schema!'
         end
 
-        plain_data ||= File.open(file_path, 'r'){|f| f.read}
 
-        schema = ActiveSupport::JSON.decode(plain_data).with_indifferent_access
         # only import object definitions, shared property definitions are handled separate
         return unless schema[:type] == 'object'
-        if schema[:extends]
-          extends = schema[:extends].is_a?(Array) ? schema[:extends] : [ schema[:extends] ]
-          extends.each do |ext_name|
-            ext = read(ext_name, path)
-            # current schema props win
-            schema[:properties] = ext[:properties].merge(schema[:properties])
-          end
-        end
-        _handle_reference_properties schema
         registry[ schema_name ] = schema
+        return schema
       end
 
       # Read all available schemas from a given path(folder +subfolders) and
@@ -93,34 +83,6 @@ module SchemaTools
         schemas
       end
 
-      # Merge referenced property definitions into the given schema.
-      # e.g. each object has an updated_at field which we define in a single
-      # location(external file) instead of repeating the property def in each
-      # schema.
-      # any hash found along the way is processed recursively, we look for a
-      # "$ref" param and resolve it. Other params are checked for nested hashes
-      # and those are processed.
-      # @param [HashWithIndifferentAccess] schema - single schema
-      def _handle_reference_properties(schema)
-
-        def resolve_reference hash
-          json_pointer = hash["$ref"]
-          values_from_pointer = RefResolver.load_json_pointer json_pointer
-          hash.merge!(values_from_pointer) { |key, old, new| old }
-          hash.delete("$ref")
-        end
-
-        keys = schema.keys # in case you are wondering: RuntimeError: can't add a new key into hash during iteration
-        keys.each do |k|
-          v = schema[k]
-          if k == "$ref"
-            resolve_reference schema
-          elsif v.is_a?(ActiveSupport::HashWithIndifferentAccess)
-            _handle_reference_properties v
-          end
-        end
-
-      end # _handle_reference_properties
     end
   end
 end
