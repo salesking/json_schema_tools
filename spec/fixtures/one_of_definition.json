@@ -7,8 +7,8 @@
     "person": {
       "type" : "object",
       "oneOf" : [
-       { "$ref" : "./client.json.json#properties"},
-       { "$ref" : "./contact.json.json#properties"}
+       { "$ref" : "./client.json#"},
+       { "$ref" : "./contact.json#"}
       ]
     }
   }

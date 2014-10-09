@@ -92,6 +92,14 @@ reader.read :client, 'from/path'
 reader.registry
 ```
 
+Get a schema as plain ruby hash with all $refs de-referenced
+
+```ruby
+SchemaTools::Reader.read_all
+client_schema = SchemaTools::Reader.registry[:client]
+schema_hash = client_schema.to_h
+```
+
 ## Object to JSON  - from Schema
 
 As you probably know such is done e.g in rails via object.as_json. While using

@@ -14,6 +14,13 @@ describe SchemaTools::Reader do
       person_schema.should be
     end
 
+    it 'reads returns schemas' do
+      SchemaTools::Reader.read_all
+      client_schema = SchemaTools::Reader.registry[:client]
+      expect(client_schema.to_h['name']).to eq 'client'
+    end
+
+
   end
 
   context '.read' do

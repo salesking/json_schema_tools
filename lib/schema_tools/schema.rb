@@ -79,7 +79,9 @@ module SchemaTools
       @absolute_dir || SchemaTools.schema_path
     end
 
-
+    def to_h
+      @hash
+    end
 
     protected
 
@@ -130,6 +132,10 @@ module SchemaTools
           resolve_reference schema
         elsif v.is_a?(ActiveSupport::HashWithIndifferentAccess)
           resolve_refs v
+        elsif v.is_a?(Array)
+          v.each do |i|
+            resolve_refs(i) if i.is_a?(ActiveSupport::HashWithIndifferentAccess)
+          end
         end
       end
 
