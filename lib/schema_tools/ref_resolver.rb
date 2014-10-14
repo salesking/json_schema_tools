@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'json'
+require 'uri'
 
 module SchemaTools
   class RefResolver
