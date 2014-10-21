@@ -1,5 +1,3 @@
-
-
 module SchemaTools
   # Internal representation of a Schema. This is basically a wrapper around a
   # HashWithIndifferentAccess ( for historical purposes ) as well as information
@@ -117,29 +115,36 @@ module SchemaTools
     # @param [HashWithIndifferentAccess] schema - single schema
     def resolve_refs schema = nil
       schema ||= @hash
-
-       def resolve_reference hash
-          json_pointer = hash["$ref"]
-          values_from_pointer = RefResolver.load_json_pointer json_pointer, self
-          hash.merge!(values_from_pointer) { |key, old, new| old }
-          hash.delete("$ref")
-        end
-
       keys = schema.keys # in case you are wondering: RuntimeError: can't add a new key into hash during iteration
       keys.each do |k|
         v = schema[k]
         if k == "$ref"
           resolve_reference schema
-        elsif v.is_a?(ActiveSupport::HashWithIndifferentAccess)
+        elsif v.is_a?(::Hash) || v.is_a?(ActiveSupport::HashWithIndifferentAccess)
           resolve_refs v
         elsif v.is_a?(Array)
           v.each do |i|
-            resolve_refs(i) if i.is_a?(ActiveSupport::HashWithIndifferentAccess)
+            resolve_refs(i) if i.is_a?(::Hash) || i.is_a?(ActiveSupport::HashWithIndifferentAccess)
           end
         end
       end
-
+      schema
     end
+
+    #
+    # @param [Hash] hash schema
+    def resolve_reference(hash)
+      json_pointer = hash["$ref"]
+      values_from_pointer = RefResolver.load_json_pointer(json_pointer, self)
+      #TODO prevent circular nesting, where a nested obj, refs one already parsed
+      if values_from_pointer['type'] && values_from_pointer['type'] == 'object'
+        # recurse to resolve possible refs in object properties
+        resolve_refs(values_from_pointer)
+      end
+      hash.merge!(values_from_pointer) { |key, old, new| old }
+      hash.delete("$ref")
+    end
+
   end
 end
 

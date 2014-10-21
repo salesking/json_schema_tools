@@ -13,7 +13,7 @@ module SchemaTools
   # http://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-07
   #
   # @param [String] json_pointer the JSON Pointer expression to evaluate
-  # @param [Hash] schema if the pointer refers to a local schema, this is this
+  # @param [Schema] relative_to if the pointer refers to a local schema, this is this
   # the hash to evaluate it against. If the pointer contains a uri to a
   # referenced schema, an attempt is made to load
   def self.load_json_pointer json_pointer, relative_to = nil
@@ -26,14 +26,25 @@ module SchemaTools
     uri     = $1.strip
     pointer = $2
     schema  = {}
-    if ! uri.empty?
+    unless uri.empty?
       uri = URI.parse(uri)
       raise "must currently be a relative uri: #{json_pointer}" if uri.absolute?
       # TODO use locale tools instance or base path from global SchemaTools.schema_path
-      if relative_to
-        path = relative_to.absolute_dir + "/" + uri.path
-      else
-        path = SchemaTools.schema_path + "/" + uri.path
+      base_dir = relative_to ? relative_to.absolute_dir : SchemaTools.schema_path
+      path = File.join(base_dir, uri.path)
+      unless File.exist?(path)
+        # try to find in main-dir and subdirs of global schema path and if
+        # present a schema's absolute dir
+        filename = uri.path.split('/').last
+        search_dirs = [File.join(SchemaTools.schema_path, filename),
+                       File.join(SchemaTools.schema_path, '**/*', filename)]
+        if relative_to
+          search_dirs += [ File.join(relative_to.absolute_dir, filename),
+                           File.join(relative_to.absolute_dir, '**/*', filename) ]
+        end
+        recursive_search = Dir.glob(search_dirs)[0]
+        # if still not found keep orig path to throw error on open
+        path = recursive_search || path
       end
       open (path) {|f| schema = JSON.parse(f.read) }
     end
