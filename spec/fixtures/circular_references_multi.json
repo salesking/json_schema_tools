@@ -1,0 +1,14 @@
+{
+  "type" : "object",
+  "one": {
+    "$ref":"./circular_references_multi.json#two"
+  },
+  "two": {
+    "$ref":"./circular_references_multi.json#three"
+  },
+  "three" : {
+    "something_else" : {
+        "$ref": "./circular_references_multi.json#one"
+    }
+  }
+}

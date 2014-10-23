@@ -112,5 +112,23 @@ describe SchemaTools::Reader do
       expect { reader.read(:client, []) }.to raise_error ArgumentError
     end
   end
+
+  context 'circular references' do
+    it 'should raise exception for circular $refs' do
+      expect{
+        bla = SchemaTools::Reader.read(:circular_references)
+      }.to raise_exception(SchemaTools::CircularReferenceException)
+    end
+    it 'should raise exception for more complex circular $refs' do
+      expect{
+        bla = SchemaTools::Reader.read(:circular_references_multi)
+      }.to raise_exception(SchemaTools::CircularReferenceException)
+    end
+    it 'should raise exception for way multi file circular $refs' do
+      expect {
+        SchemaTools::Reader.read(:circular_references_multi_file_one)
+      }.to_not raise_exception
+    end
+  end
 end
 
