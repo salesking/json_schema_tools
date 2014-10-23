@@ -144,7 +144,6 @@ module SchemaTools
           end
         end
       end
-      stack.clear
       schema
     end
 
@@ -164,6 +163,7 @@ module SchemaTools
 
       hash.merge!(values_from_pointer) { |key, old, new| old }
       hash.delete("$ref")
+      stack.pop
     end
 
   end
