@@ -132,6 +132,7 @@ module SchemaTools
         v = schema[k]
         if k == "$ref"
           resolve_reference schema, stack
+          #stack.clear # ref resolved, reset stack
         elsif v.is_a?(::Hash) || v.is_a?(ActiveSupport::HashWithIndifferentAccess)
           resolve_refs v, stack
         elsif v.is_a?(Array)
@@ -143,6 +144,7 @@ module SchemaTools
           end
         end
       end
+      stack.clear
       schema
     end
 
