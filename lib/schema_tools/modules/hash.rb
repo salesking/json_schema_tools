@@ -41,11 +41,9 @@ module SchemaTools
       #   { 'invoice' => {'title'=>'hello world', 'number'=>'4711' } }
       #
       def from_schema(obj, opts={})
-
         # get objects class name without inheritance
         real_class_name = obj.class.name.split('::').last.underscore
         class_name = opts[:class_name] || real_class_name
-
         # get schema
         inline_schema = opts.delete(:schema) if opts[:schema].present?
         schema =  inline_schema || SchemaTools::Reader.read(class_name, opts[:path])
@@ -65,7 +63,9 @@ module SchemaTools
       # @param [Hash] schema
       # @param [Hash] opts
       def parse_properties(obj, schema, opts)
-        fields = opts[:fields]
+        # only allow fields for first level object.
+        # TODO collect . dot separated field names and pass them on to the recursive calls e.g nested object, ary
+        fields = opts.delete(:fields)
         data = {}
         schema['properties'].each do |field, prop|
           next if fields && !fields.include?(field)
