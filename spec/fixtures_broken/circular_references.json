@@ -1,0 +1,9 @@
+{
+  "type" : "object",
+  "one": {
+    "$ref":"./circular_references.json#two"
+  },
+  "two": {
+    "$ref":"./circular_references.json#one"
+  }
+}

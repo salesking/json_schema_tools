@@ -112,5 +112,6 @@ describe SchemaTools::Reader do
       expect { reader.read(:client, []) }.to raise_error ArgumentError
     end
   end
+
 end
 

@@ -1,8 +1,20 @@
 module SchemaTools
+
+  class CircularReferenceException < ::Exception
+    def initialize fn, offending_ref, stack
+      @fn            = fn
+      @stack         = stack
+      @offending_ref = offending_ref
+    end
+
+    def to_s
+      "circular reference:  #{@fn} $ref: #{@offending_ref} refers to itself:\n #{@stack.join("\n")}"
+    end
+  end
+
   # Internal representation of a Schema. This is basically a wrapper around a
   # HashWithIndifferentAccess ( for historical purposes ) as well as information
   # concerning where the Schema was loaded from in order to resolve relative paths.
-
   class Schema
     #@param [String|Hash] name_or_hash Schema may be initialized with either a filename or a hash
     def initialize(name_or_hash)
@@ -113,18 +125,22 @@ module SchemaTools
     # "$ref" param and resolve it. Other params are checked for nested hashes
     # and those are processed.
     # @param [HashWithIndifferentAccess] schema - single schema
-    def resolve_refs schema = nil
+    def resolve_refs schema = nil, stack = []
       schema ||= @hash
       keys = schema.keys # in case you are wondering: RuntimeError: can't add a new key into hash during iteration
       keys.each do |k|
         v = schema[k]
         if k == "$ref"
-          resolve_reference schema
+          resolve_reference schema, stack
+          #stack.clear # ref resolved, reset stack
         elsif v.is_a?(::Hash) || v.is_a?(ActiveSupport::HashWithIndifferentAccess)
-          resolve_refs v
+          resolve_refs v, stack
         elsif v.is_a?(Array)
-          v.each do |i|
-            resolve_refs(i) if i.is_a?(::Hash) || i.is_a?(ActiveSupport::HashWithIndifferentAccess)
+          v.each do |element|
+            case element
+              when ::Hash, ActiveSupport::HashWithIndifferentAccess, ::Array
+                resolve_refs element, stack
+            end
           end
         end
       end
@@ -133,16 +149,21 @@ module SchemaTools
 
     #
     # @param [Hash] hash schema
-    def resolve_reference(hash)
+    def resolve_reference(hash, stack=[])
       json_pointer = hash["$ref"]
-      values_from_pointer = RefResolver.load_json_pointer(json_pointer, self)
-      #TODO prevent circular nesting, where a nested obj, refs one already parsed
-      if values_from_pointer['type'] && values_from_pointer['type'] == 'object'
-        # recurse to resolve possible refs in object properties
-        resolve_refs(values_from_pointer)
+      if stack.include? json_pointer
+        # we should probably also have a "too many levels of $ref exception or something ..."
+        raise CircularReferenceException.new( absolute_filename, json_pointer, stack )
+      else
+        stack.push json_pointer
       end
+      values_from_pointer = RefResolver.load_json_pointer(json_pointer, self)
+      # recurse to resolve possible refs in object properties
+      resolve_refs(values_from_pointer, stack)
+
       hash.merge!(values_from_pointer) { |key, old, new| old }
       hash.delete("$ref")
+      stack.pop
     end
 
   end

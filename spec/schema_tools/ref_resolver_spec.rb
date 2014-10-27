@@ -48,7 +48,6 @@ describe SchemaTools::RefResolver do
       found.should eq 2
     end
   end
-
   it 'should throw an exception on an invalid path' do
     obj = {}
     expect {

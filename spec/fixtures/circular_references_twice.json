@@ -1,0 +1,10 @@
+{
+  "description" : "original impl borked when including the same ref twice in one file",
+  "type" : "object",
+  "one": {
+    "$ref":"./address.json#properties"
+  },
+  "two": {
+    "$ref":"./address.json#properties"
+  }
+}
