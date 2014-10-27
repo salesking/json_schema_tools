@@ -1,13 +1,17 @@
 # Changelog JSON Schema Tools
 
 
+2014-10
+
+* handle circular dependencies in $ref arguments, so schema.to_h always resolves $refs properly 
+
 2014-09
 
 * add Schema class to represent a single schema, replaces simple Hash usage. Potentially breaks usage if you've gone crazy with Hash methods in your client.
 
 2014-09
 
-* refacture Reader to de-reference all pointers when initialized
+* refactor Reader to de-reference all pointers when initialized
 * remove :exclude_root option for object to schema_hash BREAKING change if you want nesting define your schema accordingly
 * add :links option for object to schema_hash, to include the links inline in an object
 * support items definition for array type properties - BREAKING you must change old simple property definitions
