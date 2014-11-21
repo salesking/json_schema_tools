@@ -5,7 +5,7 @@
 Toolbox to work with JSON Schema in Ruby:
 
 * blow up classes from schema
-* object.as_json conversion
+* object.as_schema_json conversion
 * object.valid? validations with object.errors
 
 Simply use full blown classes or customize the bits and pieces:
@@ -123,7 +123,7 @@ class Client < ActiveRecord::Base
 end
 
 peter = Client.new name: 'Peter'
-peter.as_json
+peter.as_schema_json
 #=> "client":{"id":12, "name": "Peter", "email":"",..}
 
 peter.as_hash
@@ -147,7 +147,7 @@ course they can be combined.
 Only use some fields e.g. to save bandwidth
 
 ```ruby
-peter.as_json(fields:['id', 'name'])
+peter.as_schema_json(fields:['id', 'name'])
 #=> "client":{"id":12, "name": "Peter"}
 ```
 
@@ -155,13 +155,13 @@ Use a custom schema name e.g. to represent a client as contact. Assumes you also
 have a schema named contact.json
 
 ```ruby
-peter.as_json(class_name: 'contact')
+peter.as_schema_json(class_name: 'contact')
 ```
 
 Set a custom schema path
 
 ```ruby
-peter.as_json( path: 'path-to/json-files/')
+peter.as_schema_json( path: 'path-to/json-files/')
 ```
 
 By default the object hash has the class name (client) and the link-section on
@@ -173,7 +173,7 @@ inline:
 
 ```ruby
 
-peter.as_json( exclude_root: true )
+peter.as_schema_json( exclude_root: true )
 
 #=> {"id":12, "name"=> "Peter",
 #    "_class_name":"client",
@@ -218,7 +218,7 @@ contact.last_name = 'Rambo'
 # raw access
 contact.schema_attrs
 # to json
-contact.as_json
+contact.as_schema_json
 ```
 
 ## Classes from Schema - KlassFactory

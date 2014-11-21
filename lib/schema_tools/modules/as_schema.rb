@@ -11,7 +11,6 @@ module SchemaTools
       def as_schema_json(opts={})
         ActiveSupport::JSON.encode(as_schema_hash(opts))
       end
-      def as_json(opts={}) as_schema_json(opts); end
 
       # The object as hash with fields detected from its schema.
       # The schema name is derived from:
