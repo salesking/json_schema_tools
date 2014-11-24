@@ -1,9 +1,12 @@
 # Changelog JSON Schema Tools
 
+2014-11
+
+* remove as_json method(alias of as_schema_json) conflicting with active_resource/active_record. Nothing stops one from using/aliasing it in his own code.
 
 2014-10
 
-* handle circular dependencies in $ref arguments, so schema.to_h always resolves $refs properly 
+* handle circular dependencies in $ref arguments, so schema.to_h always resolves $refs properly
 
 2014-09
 
@@ -22,6 +25,7 @@
 * add $ref resolver to merge property definitions from another file
 
 2013-10
+
 * allow all object properties in link href placeholders => contacts/{id}/{number}
 * add base_url option to schema hash creation. Prepends an url to all links of a rendered object
 * add to_schema_json for simpler model to json conversion
