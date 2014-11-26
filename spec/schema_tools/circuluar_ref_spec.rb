@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe SchemaTools::Reader do
-  BROKEN_SCHEMA_PATH = File.expand_path('../../fixtures_broken', __FILE__)
+  BROKEN_SCHEMA_PATH = File.join(fixture_path, 'schemata_broken')
   context 'circular references' do
     it 'should raise exception for circular $refs' do
       expect{

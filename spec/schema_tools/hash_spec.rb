@@ -49,7 +49,7 @@ describe SchemaTools::Hash do
     end
 
     it 'should use custom schema path' do
-      custom_path = File.expand_path('../../fixtures', __FILE__)
+      custom_path = File.expand_path('../../fixtures/schemata', __FILE__)
       hash = SchemaTools::Hash.from_schema(contact, path: custom_path)
       hash['last_name'].should == 'Paul'
     end

@@ -41,6 +41,21 @@ describe SchemaTools::Modules::Attributes do
     end
   end
 
+  context 'new from_json' do
+
+    it 'should create new object' do
+      str = load_fixture_data('contact_plain.json')
+      hash = JSON.parse(str)
+      obj = TestContact.from_json(str)
+      expect(obj.id).to eq hash['id']
+      expect(obj.organisation).to eq hash['organisation']
+      expect(obj.first_name).to eq hash['first_name']
+      expect(obj.last_name).to eq hash['last_name']
+   end
+
+  end
+
+
   context 'attributes from dynamic schema' do
     subject { Numbers.new }
 

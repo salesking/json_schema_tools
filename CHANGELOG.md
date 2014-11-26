@@ -2,6 +2,7 @@
 
 2014-11
 
+* add from_json method to attributes module, to create new objects from a json string
 * remove as_json method(alias of as_schema_json) conflicting with active_resource/active_record. Nothing stops one from using/aliasing it in his own code.
 
 2014-10

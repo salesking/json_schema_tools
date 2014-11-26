@@ -18,6 +18,6 @@ end
 
 I18n.enforce_available_locales = false if I18n.respond_to?('enforce_available_locales=')
 # set global json schema path for examples
-SchemaTools.schema_path = File.expand_path('../fixtures', __FILE__)
+SchemaTools.schema_path = File.join(fixture_path,'schemata')
 
 puts "Testing with ActiveModel Version: #{ActiveModel.version rescue ActiveModel::VERSION::STRING}"
