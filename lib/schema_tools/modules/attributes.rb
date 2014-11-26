@@ -44,8 +44,24 @@ module SchemaTools
           end
         end
 
+        # Create a new object from a json string. Auto-detects nesting by
+        # checking for a hash key with the same name as the schema_name:
+        #
+        #     class Contact
+        #       include SchemaTools::Modules::Attributes
+        #       has_schema_attrs :contact
+        #     end
+        #     c = Contact.from_json('{ "id": "123456",  "last_name": "Meier" }')
+        #     c.id #=>123456
+        #     c = Contact.from_json('{"contact:{ "id": "123456",  "last_name": "Meier" }}')
+        #
+        # @param [String] json
         def from_json(json)
           hash = JSON.parse(json)
+          # test if hash is nested and shift up
+          if hash.length == 1 && hash["#{schema_name}"]
+            hash = hash["#{schema_name}"]
+          end
           obj = new
           hash.each do |key, val|
             next unless obj.respond_to?(key)
@@ -53,7 +69,7 @@ module SchemaTools
             # assuming this objects comes from a remote site
             # TODO type conversion string/integer/number/date/datetime?
             obj.schema_attrs[key] = val
-            # if val is a hash / array => look for nested class
+            # TODO if val is a hash / array => look for nested class
           end
           obj
         end

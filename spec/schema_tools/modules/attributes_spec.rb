@@ -1,8 +1,13 @@
 require 'spec_helper'
 
-class TestContact
+class TestClient
   include SchemaTools::Modules::Attributes
   has_schema_attrs :client
+  end
+
+class TestContact
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs :contact
 end
 
 class Numbers
@@ -13,7 +18,7 @@ end
 describe SchemaTools::Modules::Attributes do
 
   context 'included' do
-    subject { TestContact.new }
+    subject { TestClient.new }
 
     it 'should add getter methods' do
       subject.should respond_to(:last_name)
@@ -43,12 +48,24 @@ describe SchemaTools::Modules::Attributes do
 
   context 'new from_json' do
 
-    it 'should create new object' do
+    it 'creates new object' do
       str = load_fixture_data('contact_plain.json')
       hash = JSON.parse(str)
       obj = TestContact.from_json(str)
       expect(obj.id).to eq hash['id']
       expect(obj.organisation).to eq hash['organisation']
+      expect(obj.contact_source).to eq hash['contact_source']
+      expect(obj.first_name).to eq hash['first_name']
+      expect(obj.last_name).to eq hash['last_name']
+    end
+
+    it 'creates new object from nested response' do
+      str = load_fixture_data('contact_nested.json')
+      hash = JSON.parse(str)['contact']
+      obj = TestContact.from_json(str)
+      expect(obj.id).to eq hash['id']
+      expect(obj.organisation).to eq hash['organisation']
+      expect(obj.contact_source).to eq hash['contact_source']
       expect(obj.first_name).to eq hash['first_name']
       expect(obj.last_name).to eq hash['last_name']
    end
