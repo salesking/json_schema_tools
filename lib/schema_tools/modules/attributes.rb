@@ -8,10 +8,10 @@ module SchemaTools
     #   class Contact
     #     has_schema_attrs :contact
     #   end
-    #   Contact.schema_name #=> contact
-    #   Contact.as_json
-    #   Contact.as_hash
-    #   Contact.schema  #=> json schema hash
+    #   Contact.schema_name     #=> contact
+    #   Contact.as_schema_json  #=> json string
+    #   Contact.as_hash         #=> ruby hash
+    #   Contact.schema          #=> json schema hash
     module Attributes
       extend ActiveSupport::Concern
       include SchemaTools::Modules::AsSchema
@@ -37,12 +37,25 @@ module SchemaTools
 
           self.schema= reader.read(schema_name, schema_location)
           self.schema_name(schema_name)
-          # make getter / setter
+          # make getter / setter methods
           self.schema[:properties].each do |key, prop|
             define_method(key) { schema_attrs[key] }
             define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop[:readonly]
           end
-          #TODO parse links ?? or do it in resource module
+        end
+
+        def from_json(json)
+          hash = JSON.parse(json)
+          obj = new
+          hash.each do |key, val|
+            next unless obj.respond_to?(key)
+            # set values to raw schema attributes, even if there are no setters
+            # assuming this objects comes from a remote site
+            # TODO type conversion string/integer/number/date/datetime?
+            obj.schema_attrs[key] = val
+            # if val is a hash / array => look for nested class
+          end
+          obj
         end
 
         # @param [Hash] schema_hash
