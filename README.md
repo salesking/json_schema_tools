@@ -186,6 +186,27 @@ Of course the low level hash method also supports all of these options:
 client_hash = SchemaTools::Hash.from_schema(peter, fields:['id', 'name'])
 #=> "client"=>{"id"=>12, "name"=> "Peter"}
 ```
+
+## Object from JSON
+
+On any remote site you'll need to instantiate new objects from an incoming json
+string. Let's assume a contact class which you need for incoming contact json
+data.  (Example taken from attributes_spec.rb)
+
+```ruby
+SchemaTools.schema_path = '/path/to/schema-json-files-with-contact-def'
+class Contact
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs :contact
+end
+
+json_str = '{"id": "123456", "last_name": "Meier","first_name": "Peter"}
+c = Contact.from_json(json_str)
+c.id #=> 123456
+
+```
+
+
 ## Parameter cleaning
 
 Hate people spamming your api with wrong object fields? Use the Cleaner to
