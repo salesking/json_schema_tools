@@ -46,7 +46,7 @@ describe SchemaTools::Modules::Attributes do
     end
   end
 
-  context 'new from_json' do
+  context '.from_json' do
 
     it 'creates new object' do
       str = load_fixture_data('contact_plain.json')
@@ -68,6 +68,19 @@ describe SchemaTools::Modules::Attributes do
       expect(obj.contact_source).to eq hash['contact_source']
       expect(obj.first_name).to eq hash['first_name']
       expect(obj.last_name).to eq hash['last_name']
+    end
+  end
+
+  context '.from_hash' do
+
+    it 'creates new object from hash' do
+      hash = JSON.parse(load_fixture_data('contact_nested.json'))
+      obj = TestContact.from_hash(hash)
+      expect(obj.id).to eq hash['contact']['id']
+      expect(obj.organisation).to eq hash['contact']['organisation']
+      expect(obj.contact_source).to eq hash['contact']['contact_source']
+      expect(obj.first_name).to eq hash['contact']['first_name']
+      expect(obj.last_name).to eq hash['contact']['last_name']
    end
 
   end

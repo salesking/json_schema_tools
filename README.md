@@ -200,9 +200,12 @@ class Contact
   has_schema_attrs :contact
 end
 
-json_str = '{"id": "123456", "last_name": "Meier","first_name": "Peter"}
+json_str = '{"id": "123456", "last_name": "Meier","first_name": "Peter"}'
 c = Contact.from_json(json_str)
-c.id #=> 123456
+c.id #=> "123456"
+
+# new object from hash (if your favorite http tool already parsed the json)
+c = Contact.from_hash({"id"=>123456, "last_name"=>"Meier","first_name"=>"Peter"})
 
 ```
 

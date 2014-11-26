@@ -44,8 +44,9 @@ module SchemaTools
           end
         end
 
-        # Create a new object from a json string. Auto-detects nesting by
-        # checking for a hash key with the same name as the schema_name:
+        # Create a new object from a json string or a ruby hash (already created
+        # from json string). Auto-detects nesting by checking for a hash key
+        # with the same name as the schema_name:
         #
         #     class Contact
         #       include SchemaTools::Modules::Attributes
@@ -53,11 +54,27 @@ module SchemaTools
         #     end
         #     c = Contact.from_json('{ "id": "123456",  "last_name": "Meier" }')
         #     c.id #=>123456
-        #     c = Contact.from_json('{"contact:{ "id": "123456",  "last_name": "Meier" }}')
+        #     c = Contact.from_json( {'contact'=>{ "id=>"123456", "last_name"=>"Meier" }} )
         #
-        # @param [String] json
+        # @param [String|Hash{String=>Mixed}] json string or hash
         def from_json(json)
           hash = JSON.parse(json)
+          from_hash(hash)
+        end
+
+        # Create a new object from a ruby hash (e.g parsed from json string).
+        # Auto-detects nesting by checking for a hash key with the same name as
+        # the schema_name:
+        #
+        #     class Contact
+        #       include SchemaTools::Modules::Attributes
+        #       has_schema_attrs :contact
+        #     end
+        #     c = Contact.from_hash( {'contact'=>{ "id=>"123456", "last_name"=>"Meier" }} )
+        #     c.id #=>123456
+        #
+        # @param [String|Hash{String=>Mixed}] json string or hash
+        def from_hash(hash)
           # test if hash is nested and shift up
           if hash.length == 1 && hash["#{schema_name}"]
             hash = hash["#{schema_name}"]
