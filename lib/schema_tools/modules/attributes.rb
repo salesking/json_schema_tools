@@ -85,7 +85,7 @@ module SchemaTools
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
             # TODO type conversion string/integer/number/date/datetime?
-            obj.schema_attrs[key] = val
+            obj.schema_attrs["#{key}"] = val
             # TODO if val is a hash / array => look for nested class
           end
           obj
