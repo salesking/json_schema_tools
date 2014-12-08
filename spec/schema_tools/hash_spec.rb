@@ -94,7 +94,7 @@ describe SchemaTools::Hash do
       a1.zip = 50733
       client.addresses = [a1]
       hash = SchemaTools::Hash.from_schema(client)
-      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>50733}]
+      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>"50733"}]
     end
 
     it 'has nested array values without root' do
@@ -103,7 +103,7 @@ describe SchemaTools::Hash do
       a1.zip = 50733
       client.addresses = [a1]
       hash = SchemaTools::Hash.from_schema(client, exclude_root: true)
-      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>50733}]
+      hash['addresses'].should == [{"city"=>"Cologne", "zip"=>"50733"}]
     end
 
     it 'has nested object value' do
@@ -112,7 +112,7 @@ describe SchemaTools::Hash do
       a1.zip = 50733
       client.work_address = a1
       hash = SchemaTools::Hash.from_schema(client)
-      hash['work_address'].should == {"city"=>"Cologne", "zip"=>50733}
+      hash['work_address'].should == {"city"=>"Cologne", "zip"=>"50733"}
     end
 
     it 'has nested oneOf type object ' do

@@ -81,7 +81,39 @@ describe SchemaTools::Modules::Attributes do
       expect(obj.contact_source).to eq hash['contact']['contact_source']
       expect(obj.first_name).to eq hash['contact']['first_name']
       expect(obj.last_name).to eq hash['contact']['last_name']
-   end
+    end
+
+    it 'converts strings' do
+      hash = { organisation: 123}
+      obj = TestContact.from_hash(hash)
+      expect(obj.organisation).to eq '123'
+    end
+
+    it 'converts integers' do
+      hash = { click_count: '23'}
+      obj = TestContact.from_hash(hash)
+      expect(obj.click_count).to eq 23
+    end
+
+    it 'converts dates' do
+      hash = { birthday: "1975-11-17"}
+      obj = TestContact.from_hash(hash)
+      expect(obj.birthday.class).to eq Date
+    end
+
+    it 'converts datetime' do
+      hash = { created_at: "2014-12-06T04:30:26+01:00"}
+      obj = TestClient.from_hash(hash)
+      expect(obj.created_at.class).to eq Time
+      expect(obj.created_at.zone).to eq 'CET'
+      expect(obj.created_at.year).to eq 2014
+
+      hash = { created_at: "2014-12-04T10:39:50.000Z"}
+      obj = TestClient.from_hash(hash)
+      expect(obj.created_at.zone).to eq 'UTC'
+      expect(obj.created_at.hour).to eq 10
+    end
+
 
   end
 

@@ -28,6 +28,15 @@
       "description": "First name of a person.",
       "type":"string",
       "maxLength": 50
+    },
+    "birthday":{
+      "description": "Date of birth",
+      "type":"string",
+      "format": "date"
+    },
+    "click_count":{
+      "description": "Count of clicks",
+      "type":"integer"
     }
   }
 }

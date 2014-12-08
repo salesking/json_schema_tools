@@ -77,7 +77,17 @@ module SchemaTools
             opts.delete(:class_name)
             data[field] = parse_object(obj, field, prop, opts)
           else # a simple field is only added if the object knows it
-            data[field] = obj.send(field) if obj.respond_to?(field)
+            next unless obj.respond_to?(field)
+            raw_val = obj.send(field)
+            # convert field to schema type if set
+            conv_val = if prop['type'] == 'string'  # rely on .to_s for format from date/datetime
+                         "#{raw_val}"
+                       elsif prop['type'] == 'integer'
+                         raw_val.to_i
+                       else # bool / number rely on .to_s in json lib
+                         raw_val
+                      end
+            data[field] = conv_val
           end
         end
         data

@@ -85,8 +85,22 @@ module SchemaTools
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
             # TODO type conversion string/integer/number/date/datetime?
-            obj.schema_attrs["#{key}"] = val
-            # TODO if val is a hash / array => look for nested class
+            field_props = self.schema['properties']["#{key}"]
+            conv_val = if field_props['type'] == 'string'
+                         if field_props['format'] == 'date'
+                          Date.parse(val) # or be explicit? Date.strptime('2001-02-03', '%Y-%m-%d')
+                         elsif field_props['format'] == 'date-time'
+                           Time.parse(val) # vs Time.strptime
+                         else
+                          "#{val}"
+                         end
+                       elsif field_props['type'] == 'integer'
+                         val.to_i
+                       else # rely on preceding call e.g from_json for boolean, number
+                         val
+                       end
+                      # TODO if val is a hash / array => look for nested class & cast
+            obj.schema_attrs["#{key}"] = conv_val
           end
           obj
         end
