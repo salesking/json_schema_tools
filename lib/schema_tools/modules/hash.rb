@@ -80,7 +80,9 @@ module SchemaTools
             next unless obj.respond_to?(field)
             raw_val = obj.send(field)
             # convert field to schema type if set
-            conv_val = if prop['type'] == 'string'  # rely on .to_s for format from date/datetime
+            conv_val = if raw_val.nil?
+                         raw_val
+                       elsif prop['type'] == 'string'  # rely on .to_s for format from date/datetime
                          "#{raw_val}"
                        elsif prop['type'] == 'integer'
                          raw_val.to_i

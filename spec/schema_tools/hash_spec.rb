@@ -12,8 +12,8 @@ class Address
 end
 
 class Contact
-  attr_accessor :first_name, :last_name, :addresses, :id
-  end
+  attr_accessor :first_name, :last_name, :addresses, :id, :organisation
+end
 
 class OneOfDefinition
   attr_accessor :person
@@ -46,6 +46,18 @@ describe SchemaTools::Hash do
     it 'should return hash' do
       hash = SchemaTools::Hash.from_schema(contact)
       hash['last_name'].should == 'Paul'
+    end
+
+    it 'keeps nil values' do
+      hash = SchemaTools::Hash.from_schema(contact)
+      hash.keys.should include('organisation')
+      hash['organisation'].should be_nil
+      # hash['birthday'].should be_nil
+    end
+    it 'skips unknown fields values' do
+      hash = SchemaTools::Hash.from_schema(contact)
+      # not defined in the Contact class above, but defined in the contact.json schema
+      hash.keys.should_not include('birthday')
     end
 
     it 'should use custom schema path' do

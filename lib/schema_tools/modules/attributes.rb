@@ -84,9 +84,10 @@ module SchemaTools
             next unless obj.respond_to?(key)
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
-            # TODO type conversion string/integer/number/date/datetime?
             field_props = self.schema['properties']["#{key}"]
-            conv_val = if field_props['type'] == 'string'
+            conv_val = if val.nil?
+                         val
+                       elsif field_props['type'] == 'string'
                          if field_props['format'] == 'date'
                           Date.parse(val) # or be explicit? Date.strptime('2001-02-03', '%Y-%m-%d')
                          elsif field_props['format'] == 'date-time'

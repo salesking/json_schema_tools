@@ -101,6 +101,12 @@ describe SchemaTools::Modules::Attributes do
       expect(obj.birthday.class).to eq Date
     end
 
+    it 'skips nil values' do
+      hash = { created_at: nil}
+      obj = TestClient.from_hash(hash)
+      expect(obj.created_at).to eq nil
+    end
+
     it 'converts datetime' do
       hash = { created_at: "2014-12-06T04:30:26+01:00"}
       obj = TestClient.from_hash(hash)
