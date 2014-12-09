@@ -120,6 +120,15 @@ describe SchemaTools::Modules::Attributes do
       expect(obj.created_at.hour).to eq 10
     end
 
+    it 'updates an object' do
+      obj = TestContact.from_hash( {first_name: 'Frieda'} )
+      expect(obj.first_name).to eq 'Frieda'
+      expect(obj.last_name).to eq nil
+
+      TestContact.from_hash({first_name: 'Paul', last_name: 'Hulk'}, obj)
+      expect(obj.first_name).to eq 'Paul'
+      expect(obj.last_name).to eq 'Hulk'
+    end
 
   end
 

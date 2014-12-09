@@ -73,13 +73,15 @@ module SchemaTools
         #     c = Contact.from_hash( {'contact'=>{ "id=>"123456", "last_name"=>"Meier" }} )
         #     c.id #=>123456
         #
-        # @param [String|Hash{String=>Mixed}] json string or hash
-        def from_hash(hash)
+        # @param [Hash{String=>Mixed}] json string or hash
+        # @param [Object] obj if you want to update an existing objects
+        # attributes. e.g during an update
+        def from_hash(hash, obj=nil)
           # test if hash is nested and shift up
           if hash.length == 1 && hash["#{schema_name}"]
             hash = hash["#{schema_name}"]
           end
-          obj = new
+          obj ||= new
           hash.each do |key, val|
             next unless obj.respond_to?(key)
             # set values to raw schema attributes, even if there are no setters
