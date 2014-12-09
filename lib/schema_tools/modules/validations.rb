@@ -16,20 +16,10 @@ module SchemaTools
       include ActiveModel::Conversion
       include ActiveModel::Validations
 
-      #included do
-      #  validate_with_schema :schema_name
-      #end
-      # Runs all the validations within the specified context. Returns true if no errors are found,
-      # false otherwise.
-      #
-      # If the argument is false (default is +nil+), the context is set to <tt>:create</tt> if
-      # <tt>new_record?</tt> is true, and to <tt>:update</tt> if it is not.
-      #
-      # Validations with no <tt>:on</tt> option will run no matter the context. Validations with
-      # some <tt>:on</tt> option will only run in the specified context.
-      def valid?(context = nil)
-        #context ||= (new_record? ? :create : :update)
-        output = super(context)
+      # Runs all the validations within the specified context.
+      # @return [Boolean] true if  no errors are found, false otherwise
+      def valid?
+        output = super
         errors.empty? && output
       end
 
@@ -42,15 +32,13 @@ module SchemaTools
         def validate_with(schema, opts={})
           reader = opts[:reader] || SchemaTools::Reader
           schema = reader.read(schema, opts[:path])
-          # make getter / setter
+          # create validation methods
           schema[:properties].each do |key, val|
             validates_length_of key, validate_length_opts(val) if val['maxLength'] || val['minLength']
             validates_presence_of key if val['required'] || val['required'] == 'true'
-            validates_numericality_of key, validate_number_opts(val) if val['type'] == 'number'
+            validates_numericality_of key, validate_number_opts(val) if val['type'] == 'number' || val['type'] == 'integer'
             #TODO array minItems, max unique,  null, string
             # format: date-time, regex color style, email,uri,  ..
-            validates_numericality_of key, validate_number_opts(val) if val['type'] == 'number'
-            #end
           end
         end
 
