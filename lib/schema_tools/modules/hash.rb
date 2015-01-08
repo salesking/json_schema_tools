@@ -33,6 +33,8 @@ module SchemaTools
       # @options opts [Array<String>] :fields to return. If not set all schema
       # properties are used.
       # @options opts [String] :path of the schema files overriding global one
+      # @options opts [String] :reader instance to read the schemas from instead
+      # of the global one
       # @options opts [String] :base_url used in all links
       # @options opts [Boolean] :links if set the object hash gets its _links
       # array inline.
@@ -44,9 +46,15 @@ module SchemaTools
         # get objects class name without inheritance
         real_class_name = obj.class.name.split('::').last.underscore
         class_name = opts[:class_name] || real_class_name
-        # get schema
-        inline_schema = opts.delete(:schema) if opts[:schema].present?
-        schema =  inline_schema || SchemaTools::Reader.read(class_name, opts[:path])
+        schema =  if opts[:reader].present?
+                    opts[:reader].read(class_name)
+                  elsif opts[:schema].present?
+                    # TODO inline schema can be problematic with nested resource types,
+                    # use a local reader instance until we figured it out
+                    opts.delete(:schema)
+                  else
+                    SchemaTools::Reader.read(class_name, opts[:path])
+                  end
 
         # iterate over the defined schema fields
         data = parse_properties(obj, schema, opts)

@@ -84,7 +84,8 @@ schema = SchemaTools::Reader.read :client, 'my/path/to/json-files'
 schemata = SchemaTools::Reader.read_all 'my/path/to/json-files'
 ```
 
-Don't like the global path and registry? Go local:
+Don't like the global path and registry? Create an instance and your save with
+a local registry. Use if you have schema with same names but different markup!
 
 ```ruby
 reader = SchemaTools::Reader.new
@@ -162,6 +163,14 @@ Set a custom schema path
 
 ```ruby
 peter.as_schema_json( path: 'path-to/json-files/')
+```
+
+Use your custom reader (preferred over path usage)
+
+```ruby
+reader = SchemaTools::Reader.new
+reader.read_all '/your/custom/path-to-schema-json/
+peter.as_schema_json( reader: reader)
 ```
 
 By default the object hash has the class name (client) and the link-section on

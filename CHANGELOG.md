@@ -1,5 +1,9 @@
 # Changelog JSON Schema Tools
 
+##2015-01
+
+* add :reader option for Obj.as_schema_hash to use a custom reader instance(with its own schema registry), instead of the global one
+
 ##2014-12
 
 * object.as_schema_hash converts values to types defined in the schema e.g  strings, integers

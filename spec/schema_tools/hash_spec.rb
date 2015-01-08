@@ -60,6 +60,20 @@ describe SchemaTools::Hash do
       hash.keys.should_not include('birthday')
     end
 
+    it 'should use custom reader' do
+      reader = SchemaTools::Reader.new
+      reader.read_all File.expand_path('../../fixtures/schemata', __FILE__)
+      client = Client.new
+      client.first_name = 'Egon'
+      a1 = Address.new
+      a1.city = 'Cologne'
+      client.addresses = [a1]
+      # use a object with nesting as this is problematic
+      hash = SchemaTools::Hash.from_schema(client, reader: reader)
+      hash['first_name'].should == 'Egon'
+      hash['addresses'][0]['city'].should == 'Cologne'
+    end
+
     it 'should use custom schema path' do
       custom_path = File.expand_path('../../fixtures/schemata', __FILE__)
       hash = SchemaTools::Hash.from_schema(contact, path: custom_path)
