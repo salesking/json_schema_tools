@@ -2,6 +2,7 @@
   "title": "client",
   "name": "client",
   "description": "A example client.",
+  "required": ["organisation"],
   "properties":{
     "id":{
       "description":"Unique identifier - UUID",
@@ -18,7 +19,6 @@
     },
     "organisation":{
       "description": "Name of a company. This or lastname must be present",
-      "required" : true,
       "type":"string",
       "maxLength": 100
     },

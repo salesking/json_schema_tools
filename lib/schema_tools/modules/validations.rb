@@ -34,27 +34,28 @@ module SchemaTools
           schema = reader.read(schema, opts[:path])
           # create validation methods
           schema[:properties].each do |key, val|
-            validates_length_of key, validate_length_opts(val) if val['maxLength'] || val['minLength']
-            validates_presence_of key if val['required'] || val['required'] == 'true'
-            validates_numericality_of key, validate_number_opts(val) if val['type'] == 'number' || val['type'] == 'integer'
+            is_required =  schema['required'] && schema['required'].include?("#{key}")
+            validates_length_of key, validate_length_opts(val, is_required) if val['maxLength'] || val['minLength']
+            validates_presence_of key if is_required
+            validates_numericality_of key, validate_number_opts(val, is_required) if val['type'] == 'number' || val['type'] == 'integer'
             #TODO array minItems, max unique,  null, string
             # format: date-time, regex color style, email,uri,  ..
           end
         end
 
-        def validate_length_opts(attr)
+        def validate_length_opts(attr, is_required=false)
           opts = {}
           opts[:within] = attr['minLength']..attr['maxLength'] if attr['minLength'] && attr['maxLength']
           opts[:maximum] = attr['maxLength'] if attr['maxLength'] && !attr['minLength']
           opts[:minimum] = attr['minLength'] if attr['minLength'] && !attr['maxLength']
-          opts[:allow_blank] = true if !attr['required']
+          opts[:allow_blank] = true unless is_required
           opts
         end
 
         # @param [Hash<String>] attr property values
-        def validate_number_opts(attr)
+        def validate_number_opts(attr, is_required=false)
           opts = {}
-          opts[:allow_blank] = true
+          opts[:allow_blank] = true unless is_required
           # those vals should not be set both in one property
           opts[:greater_than_or_equal_to] = attr['minimum'] if attr['minimum'].present?
           opts[:less_than_or_equal_to] = attr['maximum'] if attr['maximum'].present?

@@ -2,6 +2,7 @@
   "title": "address",
   "name": "address",
   "description":"An address .. Example partially taken from SalesKing",
+  "required": ["city"],
   "properties":{
     "id":{
       "description":"Unique identifier - UUID",
@@ -13,7 +14,6 @@
     },
     "city":{
       "description": "City for the address. Must at least be present for an address.",
-      "required":true,
       "type":"string",
       "maxLength": 100
     },
