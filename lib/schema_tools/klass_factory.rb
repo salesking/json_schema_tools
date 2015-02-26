@@ -52,7 +52,7 @@ module SchemaTools
           include SchemaTools::Modules::Validations # +naming + transl + conversion
           has_schema_attrs schema['name'], reader: reader
           validate_with schema['name'], reader:reader
-          getter_names = schema['properties'].select{|name,prop| !prop['readonly'] }
+          getter_names = schema['properties'].select{|name,prop| !prop['readOnly'] }
                                              .keys.map { |name| name.to_sym}
           attr_accessor *getter_names
 

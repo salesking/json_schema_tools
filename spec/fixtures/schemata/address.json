@@ -7,7 +7,7 @@
     "id":{
       "description":"Unique identifier - UUID",
       "identity":true,
-      "readonly":true,
+      "readOnly":true,
       "type":"string",
       "maxLength": 22,
       "minLength":22

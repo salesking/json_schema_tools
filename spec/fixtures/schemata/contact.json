@@ -7,7 +7,7 @@
     "id":{
       "description":"Unique identifier ",
       "identity":true,
-      "readonly":true,
+      "readOnly":true,
       "type":"number"
     },
     "contact_source":{

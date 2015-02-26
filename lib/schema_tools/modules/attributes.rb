@@ -40,7 +40,7 @@ module SchemaTools
           # make getter / setter methods
           self.schema[:properties].each do |key, prop|
             define_method(key) { schema_attrs[key] }
-            define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop[:readonly]
+            define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop['readOnly']
           end
         end
 

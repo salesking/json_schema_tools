@@ -7,22 +7,22 @@
     "id": {
       "description": "The object identifier.",
       "identity": true,
-      "readonly": true,
+      "readOnly": true,
       "type": "integer"
     },
     "number": {
       "description": "Number of this page inside the document",
-      "readonly": true,
+      "readOnly": true,
       "type": "integer"
     },
     "related_object_id": {
       "description": "ID  of the PDF object the page belongs to.",
-      "readonly": true,
+      "readOnly": true,
       "type": "integer"
     },
     "related_object_type": {
       "description": "Type of the related object Pdf or Pdt (camelCased class name)",
-      "readonly": true,
+      "readOnly": true,
       "type": "string",
       "maxlength": 20
     },
@@ -32,19 +32,19 @@
     },
     "created_at": {
       "description": "Creation date.",
-      "readonly": true,
+      "readOnly": true,
       "type": "string",
       "format": "date-time"
     },
     "updated_at": {
       "description": "Update date.",
-      "readonly": true,
+      "readOnly": true,
       "type": "string",
       "format": "date-time"
     },
     "user_id": {
       "description": "User who created the object.",
-      "readonly": true,
+      "readOnly": true,
       "type": "integer"
     },
     "screenshot": {

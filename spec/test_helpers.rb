@@ -22,7 +22,7 @@ def schema_as_ruby_object
         },
         "id" => {
           "type"     => "number",
-          "readonly" => true
+          "readOnly" => true
         },
         "additionalProperties" => false
       }

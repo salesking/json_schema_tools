@@ -18,7 +18,7 @@ module SchemaTools
         schema = SchemaTools::Reader.read(obj_name)
         setters = []
         # gather allowed properties
-        schema[:properties].each{ |k,v| setters << k if !v['readonly'] }
+        schema[:properties].each{ |k,v| setters << k if !v['readOnly'] }
         setters += opts[:keep] if opts[:keep] && opts[:keep].is_a?(Array)
         # kick readonly
         params.delete_if { |k,v| !setters.include?("#{k}")  }

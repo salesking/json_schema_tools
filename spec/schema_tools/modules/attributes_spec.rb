@@ -28,7 +28,7 @@ describe SchemaTools::Modules::Attributes do
       subject.should respond_to('first_name=')
     end
 
-    it 'should not add setter for readonly properties' do
+    it 'should not add setter for readOnly properties' do
       subject.should_not respond_to('id=')
       subject.should_not respond_to('created_at=')
     end
@@ -144,7 +144,7 @@ describe SchemaTools::Modules::Attributes do
       subject.should respond_to('numbers=')
     end
 
-    it 'should not add setter for readonly properties' do
+    it 'should not add setter for readOnly properties' do
       subject.should_not respond_to('id=')
     end
   end
