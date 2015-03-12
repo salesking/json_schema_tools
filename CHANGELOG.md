@@ -2,8 +2,7 @@
 
 ##2015-03
 
-* allow $refs to include plain schema file name
-* add $schema version to each file
+* allow $refs to include plain schema file name without #suffix
 
 ##2015-01
 
