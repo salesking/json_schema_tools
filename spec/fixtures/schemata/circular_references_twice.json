@@ -6,5 +6,8 @@
   },
   "two": {
     "$ref":"./address.json#properties"
+  },
+  "three": {
+    "$ref":"./address.json"
   }
 }

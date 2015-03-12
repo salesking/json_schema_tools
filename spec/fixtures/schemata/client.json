@@ -73,7 +73,7 @@
     "work_address":{
       "description": "The work address as an example for a single nested/related object",
       "type":"object",
-      "properties" : {"$ref":"./address.json#properties"}
+      "$ref":"./address.json"
     }
   },
   "links":[

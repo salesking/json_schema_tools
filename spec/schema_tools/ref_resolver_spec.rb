@@ -9,10 +9,6 @@ describe SchemaTools::RefResolver do
 
       pointer = "bla/blub"
       found = SchemaTools::RefResolver._retrieve_pointer_from_object pointer, obj
-      # not sure what I am doing wrong here, but:
-      #    found.should eq :success
-      # does not work because
-      #    undefined method `eq'
       found.should eq :success
 
       found = SchemaTools::RefResolver._retrieve_pointer_from_object "non/existant/path", obj
@@ -62,13 +58,19 @@ describe SchemaTools::RefResolver do
     }.to raise_error
   end
 
-  it 'should load local ref' do
+  it 'loads local ref' do
     pointer = "./basic_definitions.json#definitions"
     obj = SchemaTools::RefResolver.load_json_pointer(pointer)
     obj.length.should eq 3
   end
 
-  it 'should load the entire document' do
+  it 'loads entire document without # at the end' do
+    pointer = "./basic_definitions.json"
+    obj = SchemaTools::RefResolver.load_json_pointer(pointer)
+    obj["definitions"].keys.length.should eq 3
+  end
+
+  it 'loads the entire document' do
     pointer = "./basic_definitions.json#"
     obj = SchemaTools::RefResolver.load_json_pointer(pointer)
     obj["definitions"].keys.length.should eq 3
