@@ -3,6 +3,7 @@
 ##2015-03
 
 * allow $refs to include plain schema file name
+* add $schema version to each file
 
 ##2015-01
 
