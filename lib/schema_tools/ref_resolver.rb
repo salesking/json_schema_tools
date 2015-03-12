@@ -36,7 +36,7 @@ module SchemaTools
       raise "must currently be a relative uri: #{json_pointer}" if uri.absolute?
       # TODO use local tools instance or base path from global SchemaTools.schema_path
       base_dir = relative_to ? relative_to.absolute_dir : SchemaTools.schema_path
-      path = find_local_file_path(base_dir, uri.path)
+      path = find_local_file_path(base_dir, uri.path, relative_to)
       open (path) {|f| schema = JSON.parse(f.read) }
 
       if pointer
@@ -65,8 +65,8 @@ module SchemaTools
                          File.join(relative_to.absolute_dir, '**/*', filename) ]
       end
       recursive_search = Dir.glob(search_dirs)[0]
-      # if still not found keep orig path to throw error on open
-      path = recursive_search || path
+      # if still not found return orig path to throw error on open
+      recursive_search || path
     end
 
 

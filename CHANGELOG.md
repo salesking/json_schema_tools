@@ -1,5 +1,9 @@
 # Changelog JSON Schema Tools
 
+##2015-03
+
+* allow $refs to include plain schema file name
+
 ##2015-01
 
 * add :reader option for Obj.as_schema_hash to use a custom reader instance(with its own schema registry), instead of the global one
