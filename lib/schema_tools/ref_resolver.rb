@@ -34,8 +34,11 @@ module SchemaTools
       schema  = {}
       if internal_reference
         ref = json_pointer.split('#')[1].split('/')
-        schema = relative_to
-        ref.each { |i| schema = schema[i]}
+        props = relative_to
+        ref.each { |i| props = props[i]}
+        schema = {ref.last => props}
+        puts schema
+        puts ' ------------------------ '
       else
         uri = URI.parse(uri)
         raise "must currently be a relative uri: #{json_pointer}" if uri.absolute?
