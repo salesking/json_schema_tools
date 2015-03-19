@@ -25,7 +25,7 @@ module SchemaTools
         raise "invalid json pointer: #{json_pointer}" unless json_pointer =~ /^(.*)#(.*)/
         uri, pointer = json_pointer.match(/^(.*)#(.*)/).captures
       elsif json_pointer[0] == '#'
-        raise "invalid internal json ref: #{json_pointer}" unless stack.include? json_pointer && json_pointer.size != 1
+        raise "invalid internal json ref: #{json_pointer}" unless stack.include?(json_pointer) && json_pointer.size != 1
         internal_reference = true
       else
         uri = json_pointer
@@ -33,7 +33,8 @@ module SchemaTools
       raise "invalid uri pointer: #{json_pointer}" if !internal_reference && uri.empty?
       schema  = {}
       if internal_reference
-        ref = json_pointer.split('#')[1].split('/')
+        path = json_pointer.split('#')[1]
+        ref = path.split('/')
         props = relative_to
         ref.each { |i| props = props[i]}
         schema = {ref.last => props}
