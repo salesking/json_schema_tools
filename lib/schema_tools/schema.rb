@@ -151,13 +151,9 @@ module SchemaTools
     # @param [Hash] hash schema
     def resolve_reference(hash, stack=[])
       json_pointer = hash["$ref"]
-      if stack.include? json_pointer
-        # we should probably also have a "too many levels of $ref exception or something ..."
-        raise CircularReferenceException.new( absolute_filename, json_pointer, stack )
-      else
-        stack.push json_pointer
-      end
-      values_from_pointer = RefResolver.load_json_pointer(json_pointer, self)
+      # we should probably have a "too many levels of $ref exception or something ..."
+      stack.push json_pointer
+      values_from_pointer = RefResolver.load_json_pointer(json_pointer, self, stack)
       # recurse to resolve possible refs in object properties
       resolve_refs(values_from_pointer, stack)
 
