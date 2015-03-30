@@ -28,6 +28,11 @@ class Conversion
   attr_accessor :from, :to
 end
 
+class AnotherAddress
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs 'address'
+end
+
 
 describe SchemaTools::Hash do
 
@@ -98,6 +103,62 @@ describe SchemaTools::Hash do
       hash['_links'].length.should == 7
     end
 
+  end
+
+  context 'with nested values referencing a schema that is different from the class name' do
+    let(:client){Client.new}
+
+    it 'has an empty array if values are missing' do
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['addresses'].should == []
+    end
+
+    it 'has nil if nested object is missing' do
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['work_address'].should be_nil
+    end
+
+    it 'has nested array values' do
+      a1 = AnotherAddress.new
+      a1.city = 'Cologne'
+      a1.zip = 50733
+      client.addresses = [a1]
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['addresses'].should == [{"id" => nil,
+                                    "city"=>"Cologne",
+                                    "address1" => nil,
+                                    "zip"=>"50733",
+                                    "country" => nil,
+                                    "address_type" => nil}]
+    end
+
+    it 'has nested array values without root' do
+      a1 = AnotherAddress.new
+      a1.city = 'Cologne'
+      a1.zip = 50733
+      client.addresses = [a1]
+      hash = SchemaTools::Hash.from_schema(client, exclude_root: true)
+      hash['addresses'].should == [{"id" => nil,
+                                    "city"=>"Cologne",
+                                    "address1" => nil,
+                                    "zip"=>"50733",
+                                    "country" => nil,
+                                    "address_type" => nil}]
+    end
+
+    it 'has nested object value' do
+      a1 = AnotherAddress.new
+      a1.city = 'Cologne'
+      a1.zip = 50733
+      client.work_address = a1
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['work_address'].should == {"id" => nil,
+                                      "city"=>"Cologne",
+                                      "address1" => nil,
+                                      "zip"=>"50733",
+                                      "country" => nil,
+                                      "address_type" => nil}
+    end
   end
 
   context 'with nested values referencing a schema' do
