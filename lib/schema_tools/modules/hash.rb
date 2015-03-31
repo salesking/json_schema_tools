@@ -155,7 +155,10 @@ module SchemaTools
           if SCHEMA_BASE_TYPES.include?(prop['items']['type'])
             res = rel_objects
           elsif prop['items']['type'] == 'object'
-            rel_objects.each { |rel_obj| res << from_schema(rel_obj, opts) }
+            rel_objects.each do |rel_obj|
+              opts[:schema] = prop['items']
+              res << from_schema(rel_obj, opts)
+            end
           end
         end
 
