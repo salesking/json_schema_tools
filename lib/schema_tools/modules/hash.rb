@@ -176,9 +176,9 @@ module SchemaTools
       # @param [Hash] opts to_schema options
       # @return [Array<Hash{String=>String}>]
       def parse_object(obj, field, prop, opts)
-        return if !obj.respond_to?( field )
+        return {} if !obj.respond_to?( field )
         rel_obj = obj.send( field )
-        return if !rel_obj
+        return {} if !rel_obj
 
         res = if prop['properties']
                 opts[:schema] = prop
