@@ -180,9 +180,11 @@ module SchemaTools
         rel_obj = obj.send( field )
         return {} if !rel_obj
 
-        res = if prop['properties']
+        res = if prop['properties'].present?
                 opts[:schema] = prop
                 from_schema(rel_obj, opts)
+              elsif prop['properties'].blank?
+                obj.send(field)
               elsif prop['oneOf']
                 # auto-detects which schema to use depending on the rel_object type
                 # Simpler than detecting the object type or $ref to use inside the
