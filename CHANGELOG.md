@@ -1,5 +1,9 @@
 # Changelog JSON Schema Tools
 
+##2015-04
+
+* use schema definition in nested items array Thanks @VidurMalik
+
 ##2015-03
 
 * allow $refs to include plain schema file name without #suffix
