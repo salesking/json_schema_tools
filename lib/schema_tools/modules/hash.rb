@@ -185,6 +185,8 @@ module SchemaTools
                 # Simpler than detecting the object type or $ref to use inside the
                 # oneOf array
                 from_schema(rel_obj, opts)
+              elsif prop['properties'].blank?
+                rel_obj
               end
         res
       end
