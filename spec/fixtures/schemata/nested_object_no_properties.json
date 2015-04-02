@@ -1,0 +1,7 @@
+{
+  "type" : "object",
+  "id" : { "type" : "string" },
+  "properties" : {
+    "user_data" : { "type" : "object" }
+  }
+}
