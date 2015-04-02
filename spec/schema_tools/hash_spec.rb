@@ -117,9 +117,9 @@ describe SchemaTools::Hash do
       hash['addresses'].should == []
     end
 
-    it 'has nil if nested object is missing' do
+    it 'does not have the key if nested object is missing' do
       hash = SchemaTools::Hash.from_schema(client)
-      hash['work_address'].should be_nil
+      hash.has_key?('work_address').should == false
     end
 
     it 'has nested array values' do
@@ -174,9 +174,9 @@ describe SchemaTools::Hash do
       hash['addresses'].should == []
     end
 
-    it 'has nil if nested object is missing' do
+    it 'does not have the key if nested object is missing' do
       hash = SchemaTools::Hash.from_schema(client)
-      hash['work_address'].should be_nil
+      hash.has_key?('work_address').should == false
     end
 
     it 'has nested array values' do
