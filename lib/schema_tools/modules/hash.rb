@@ -194,7 +194,7 @@ module SchemaTools
       def parse_object?(obj, field)
         if obj.respond_to?( field )
           rel_obj = obj.send( field )
-          rel_obj.present? ? true : false
+          rel_obj.present?
         else
           false
         end
