@@ -83,7 +83,7 @@ module SchemaTools
             data[field] = parse_list(obj, field, prop, opts)
           elsif prop['type'] == 'object' # a singular related object
             opts.delete(:class_name)
-            data[field] = parse_object(obj, field, prop, opts)
+            data[field] = parse_object(obj, field, prop, opts) if parse_object?(obj, field)
           else # a simple field is only added if the object knows it
             next unless obj.respond_to?(field)
             raw_val = obj.send(field)
@@ -176,15 +176,10 @@ module SchemaTools
       # @param [Hash] opts to_schema options
       # @return [Array<Hash{String=>String}>]
       def parse_object(obj, field, prop, opts)
-        return {} if !obj.respond_to?( field )
         rel_obj = obj.send( field )
-        return {} if !rel_obj
-
         res = if prop['properties'].present?
                 opts[:schema] = prop
                 from_schema(rel_obj, opts)
-              elsif prop['properties'].blank?
-                obj.send(field)
               elsif prop['oneOf']
                 # auto-detects which schema to use depending on the rel_object type
                 # Simpler than detecting the object type or $ref to use inside the
@@ -194,6 +189,16 @@ module SchemaTools
         res
       end
 
+      private
+
+      def parse_object?(obj, field)
+        if obj.respond_to?( field )
+          rel_obj = obj.send( field )
+          rel_obj.present? ? true : false
+        else
+          false
+        end
+      end
     end
   end
 end
