@@ -33,6 +33,10 @@ class AnotherAddress
   has_schema_attrs 'address'
 end
 
+class NestedObjectNoProperties
+ include SchemaTools::Modules::Attributes
+ has_schema_attrs 'nested_object_no_properties'
+end
 
 describe SchemaTools::Hash do
 
@@ -266,7 +270,16 @@ describe SchemaTools::Hash do
       hash = SchemaTools::Hash.from_schema(client, base_url: 'http://json-hell.com', links: true)
       hash['_links'].last['href'].should == 'http://json-hell.com/clients/123/Peter'
     end
+  end
 
+  context 'with a nested object that does not have properties' do
+    let(:input_hash) { { foo: 'bar', baz: 'boom' } }
+    let(:nested_object_no_properties) { NestedObjectNoProperties.from_hash(user_data: input_hash) }
+
+    it 'should output the input hash' do
+      hash = SchemaTools::Hash.from_schema(nested_object_no_properties)
+      hash['user_data'].should == input_hash
+    end
   end
 end
 
