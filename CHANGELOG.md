@@ -2,7 +2,10 @@
 
 ##2015-04
 
-* use schema definition in nested items array Thanks @VidurMalik
+Thanks @VidurMalik
+* use schema definition in nested items array
+* exclude keys for nil(blank) nested objects
+* allow arbitrary key/values for a nested object without properties definition in the schema
 
 ##2015-03
 
