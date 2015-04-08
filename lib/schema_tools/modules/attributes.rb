@@ -76,7 +76,8 @@ module SchemaTools
         # @param [Hash{String=>Mixed}] json string or hash
         # @param [Object] obj if you want to update an existing objects
         # attributes. e.g during an update
-        def from_hash(hash, obj=nil)
+        # @param [Hash] flags for switching between ways to slurp in hash
+        def from_hash(hash, obj=nil, opts={})
           # test if hash is nested and shift up
           if hash.length == 1 && hash["#{schema_name}"]
             hash = hash["#{schema_name}"]
@@ -87,9 +88,10 @@ module SchemaTools
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
             field_props = self.schema['properties']["#{key}"]
+            field_type = field_props['type']
             conv_val = if val.nil?
                          val
-                       elsif field_props['type'] == 'string'
+                       elsif field_type == 'string'
                          if field_props['format'] == 'date'
                           Date.parse(val) # or be explicit? Date.strptime('2001-02-03', '%Y-%m-%d')
                          elsif field_props['format'] == 'date-time'
@@ -97,8 +99,16 @@ module SchemaTools
                          else
                           "#{val}"
                          end
-                       elsif field_props['type'] == 'integer'
+                       elsif field_type == 'integer'
                          val.to_i
+                       elsif field_type == 'object'
+                         if nested_class(key)
+                           nested_class(key).from_hash(val)
+                         else
+                           val
+                         end
+                       # elsif field_props['type'] == 'array'
+                        #something
                        else # rely on preceding call e.g from_json for boolean, number
                          val
                        end
@@ -116,6 +126,26 @@ module SchemaTools
           @schema
         end
 
+        private
+
+        def nested_class(field_name)
+          klass = "#{base_class}::#{field_name.to_s.camelize}"
+          if is_a_defined_class?(klass)
+            klass.constantize
+          end
+        end
+
+        def base_class
+          self.to_s.deconstantize
+        end
+
+        # This is a little ugly, because we cannot use Object.const_get. That is because
+        # const_get works only if the class has already been autoloaded. Find a way to refactor
+        def is_a_defined_class?(klass)
+          true if Kernel.const_get(klass)
+        rescue NameError
+          false
+        end
       end
     end
   end
