@@ -149,22 +149,11 @@ module SchemaTools
         end
 
         def nested_class(field_name)
-          klass = "#{base_class}::#{field_name.to_s.camelize}"
-          if is_a_defined_class?(klass)
-            klass.constantize
-          end
+          "#{base_class}::#{field_name.to_s.camelize}".safe_constantize
         end
 
         def base_class
           self.to_s.deconstantize
-        end
-
-        # This is a little ugly, because we cannot use Object.const_get. That is because
-        # const_get works only if the class has already been autoloaded. Find a way to refactor
-        def is_a_defined_class?(klass)
-          true if Kernel.const_get(klass)
-        rescue NameError
-          false
         end
       end
     end
