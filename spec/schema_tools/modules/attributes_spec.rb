@@ -15,6 +15,21 @@ class Numbers
   has_schema_attrs :numbers, :schema => schema_as_ruby_object
 end
 
+class WorkAddress
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs :address
+end
+
+class ItemCollection
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs :item_collection
+end
+
+class Item
+  include SchemaTools::Modules::Attributes
+  has_schema_attrs :item
+end
+
 describe SchemaTools::Modules::Attributes do
 
   context 'included' do
@@ -118,6 +133,18 @@ describe SchemaTools::Modules::Attributes do
       obj = TestClient.from_hash(hash)
       expect(obj.created_at.zone).to eq 'UTC'
       expect(obj.created_at.hour).to eq 10
+    end
+
+    it 'makes nested objects if there are nested hashes' do
+      hash = {work_address: {}}
+      obj = TestClient.from_hash(hash)
+      expect(obj.work_address).to be_an_instance_of(WorkAddress)
+    end
+
+    it 'makes nested array of objects if there are nested arrays of hashes' do
+      hash = {items: [{}, {}]}
+      obj = ItemCollection.from_hash(hash)
+      expect(obj.items.first).to be_an_instance_of(Item)
     end
 
     it 'updates an object' do
