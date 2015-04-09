@@ -76,8 +76,7 @@ module SchemaTools
         # @param [Hash{String=>Mixed}] json string or hash
         # @param [Object] obj if you want to update an existing objects
         # attributes. e.g during an update
-        # @param [Hash] flags for switching between ways to slurp in hash
-        def from_hash(hash, obj=nil, opts={})
+        def from_hash(hash, obj=nil)
           # test if hash is nested and shift up
           if hash.length == 1 && hash["#{schema_name}"]
             hash = hash["#{schema_name}"]
