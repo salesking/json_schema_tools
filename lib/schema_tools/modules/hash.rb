@@ -86,7 +86,7 @@ module SchemaTools
             data[field] = parse_object(obj, field, prop, opts) if parse_object?(obj, field)
           else # a simple field is only added if the object knows it
             next unless obj.respond_to?(field)
-            raw_val = obj.send(field)
+            raw_val = obj.public_send(field)
             # convert field to schema type if set
             conv_val = if raw_val.nil?
                          raw_val
@@ -118,7 +118,7 @@ module SchemaTools
           matches = href.scan(/{(\w+)}/) #{abc} => abc
           replaces = []
           matches.each do |match|
-            obj_val = obj.send(match[0]) if obj.respond_to?(match[0])
+            obj_val = obj.public_send(match[0]) if obj.respond_to?(match[0])
             replaces << ["{#{match[0]}}", obj_val] if obj_val
           end
           replaces.each {|r| href.gsub!(r[0], "#{r[1]}")}
@@ -144,7 +144,7 @@ module SchemaTools
         return nil if !obj.respond_to?( field )
         return nil if !prop['items']
 
-        rel_objects = obj.send( field )
+        rel_objects = obj.public_send( field )
         # force an empty array if values are not present
         return res if !rel_objects
 
@@ -176,7 +176,7 @@ module SchemaTools
       # @param [Hash] opts to_schema options
       # @return [Array<Hash{String=>String}>]
       def parse_object(obj, field, prop, opts)
-        rel_obj = obj.send( field )
+        rel_obj = obj.public_send( field )
         res = if prop['properties'].present?
                 opts[:schema] = prop
                 from_schema(rel_obj, opts)
@@ -195,7 +195,7 @@ module SchemaTools
 
       def parse_object?(obj, field)
         if obj.respond_to?( field )
-          rel_obj = obj.send( field )
+          rel_obj = obj.public_send( field )
           rel_obj.present?
         else
           false
