@@ -84,25 +84,26 @@ module SchemaTools
           obj ||= new
           hash.each do |key, val|
             next unless obj.respond_to?(key)
+            conv_val = nil
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
             field_props = self.schema['properties']["#{key}"]
-            conv_val = if val.nil?
-                         val
-                       elsif field_props['type'] == 'string'
-                         if field_props['format'] == 'date'
-                          Date.parse(val) # or be explicit? Date.strptime('2001-02-03', '%Y-%m-%d')
-                         elsif field_props['format'] == 'date-time'
-                           Time.parse(val) # vs Time.strptime
-                         else
-                          "#{val}"
-                         end
-                       elsif field_props['type'] == 'integer'
-                         val.to_i
-                       else # rely on preceding call e.g from_json for boolean, number
-                         val
-                       end
-                      # TODO if val is a hash / array => look for nested class & cast
+            field_type = field_props['type']
+            unless val.nil?
+              case field_type
+              when 'string'
+                conv_val = process_string_type(field_props['format'], val)
+              when 'integer'
+                conv_val = val.to_i
+              when 'object'
+                conv_val = process_object_type(key, val)
+              when 'array'
+                conv_val = process_array_type(key, val)
+              else
+                conv_val = val
+              end
+            end
+
             obj.schema_attrs["#{key}"] = conv_val
           end
           obj
@@ -116,6 +117,43 @@ module SchemaTools
           @schema
         end
 
+        private
+
+        def process_string_type(field_format, value)
+          if field_format == 'date'
+            Date.parse(value) # or be explicit? Date.strptime('2001-02-03', '%Y-%m-%d')
+          elsif field_format == 'date-time'
+            Time.parse(value) # vs Time.strptime
+          else
+           value.to_s
+          end
+        end
+
+        def process_object_type(field_name, value)
+          if nested_class(field_name)
+            nested_class(field_name).from_hash(value)
+          else
+            value
+          end
+        end
+
+        def process_array_type(field_name, value)
+          if nested_class(field_name.to_s.singularize)
+            value.map do |element|
+              nested_class(field_name.to_s.singularize).from_hash(element)
+            end
+          else
+            value
+          end
+        end
+
+        def nested_class(field_name)
+          "#{base_class}::#{field_name.to_s.camelize}".safe_constantize
+        end
+
+        def base_class
+          self.to_s.deconstantize
+        end
       end
     end
   end
