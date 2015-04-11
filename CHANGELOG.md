@@ -6,6 +6,7 @@ Thanks @VidurMalik
 * use schema definition in nested items array
 * exclude keys for nil(blank) nested objects
 * allow arbitrary key/values for a nested object without properties definition in the schema
+* from_hash/from_json creates objects from nested object/array definitions
 
 ##2015-03
 
