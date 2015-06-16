@@ -176,11 +176,19 @@ module SchemaTools
       # @param [Hash] opts to_schema options
       # @return [Array<Hash{String=>String}>]
       def parse_object(obj, field, prop, opts)
+        res = parse_properties_for_object(obj, field, prop, opts)
+        ['oneOf', 'anyOf', 'allOf'].each do |sub_node|
+          res.merge!(parse_properties_for_object(obj, field, prop[sub_node], opts)) if prop[sub_node]
+        end
+
+      end
+
+      def parse_properties_for_object(obj, field, prop, opts)
         rel_obj = obj.public_send( field )
         res = if prop['properties'].present?
                 opts[:schema] = prop
                 from_schema(rel_obj, opts)
-              elsif prop['oneOf']
+              elsif prop['oneOf'] || prop['anyOf'] || prop['allOf']
                 # auto-detects which schema to use depending on the rel_object type
                 # Simpler than detecting the object type or $ref to use inside the
                 # oneOf array
