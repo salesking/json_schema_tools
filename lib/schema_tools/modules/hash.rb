@@ -74,8 +74,18 @@ module SchemaTools
         # only allow fields for first level object.
         # TODO collect . dot separated field names and pass them on to the recursive calls e.g nested object, ary
         fields = opts.delete(:fields)
+        data = assign_data_properties(obj, schema['properties'], opts, fields)
+        ['oneOf', 'allOf', 'anyOf'].each do |sub_node|
+          (schema[sub_node] || []).each do |sub_schema|
+            data.merge!(assign_data_properties(obj, sub_schema, opts, fields))
+          end
+        end
+        data
+      end
+
+      def assign_data_properties(obj, sub_schema, opts, fields)
         data = {}
-        schema['properties'].each do |field, prop|
+        sub_schema.each do |field, prop|
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
             # ensure the nested object gets its own class name
@@ -180,7 +190,6 @@ module SchemaTools
         ['oneOf', 'anyOf', 'allOf'].each do |sub_node|
           res.merge!(parse_properties_for_object(obj, field, prop[sub_node], opts)) if prop[sub_node]
         end
-
       end
 
       def parse_properties_for_object(obj, field, prop, opts)

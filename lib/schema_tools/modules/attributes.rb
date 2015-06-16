@@ -38,11 +38,19 @@ module SchemaTools
           self.schema= reader.read(schema_name, schema_location)
           self.schema_name(schema_name)
           # make getter / setter methods
-          self.schema[:properties].each do |key, prop|
+          define_methods(schema[:properties])
+          ['oneOf', 'allOf', 'anyOf'].each do |subNode|
+            (schema[subNode] || []).each { |node| define_methods(node) } if self.schema[subNode]
+          end
+        end
+
+        def define_methods(node)
+          node.each do |key, prop|
             define_method(key) { schema_attrs[key] }
             define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop['readOnly']
           end
         end
+
 
         # Create a new object from a json string or a ruby hash (already created
         # from json string). Auto-detects nesting by checking for a hash key
