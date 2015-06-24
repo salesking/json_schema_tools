@@ -73,8 +73,8 @@ module SchemaTools
       def parse_properties(obj, schema, opts)
         # only allow fields for first level object.
         # TODO collect . dot separated field names and pass them on to the recursive calls e.g nested object, ary
-        data = {}
         fields = opts.delete(:fields)
+        data = {}
         all_properties(schema.to_h).each do |field, prop|
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
