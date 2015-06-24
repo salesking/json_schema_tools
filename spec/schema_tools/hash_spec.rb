@@ -19,6 +19,14 @@ class OneOfDefinition
   attr_accessor :person
 end
 
+class AnyOfDefinition
+  attr_accessor :person
+end
+
+class AllOfDefinition
+  attr_accessor :person
+end
+
 # see fixtures/lead.json
 class Lead < Contact
   attr_accessor :links_clicked, :conversion
@@ -217,6 +225,27 @@ describe SchemaTools::Hash do
       hash['person']['first_name'].should == 'Pit'
     end
 
+    it 'has nested anyOf type object ' do
+      contact = Contact.new
+      contact.first_name = 'Pit'
+
+      i = AnyOfDefinition.new
+      i.person = contact
+
+      hash = SchemaTools::Hash.from_schema(i, exclude_root: true)
+      hash['person']['first_name'].should == 'Pit'
+    end
+
+    it 'has nested allOf type object ' do
+      contact = Contact.new
+      contact.first_name = 'Pit'
+
+      i = AllOfDefinition.new
+      i.person = contact
+
+      hash = SchemaTools::Hash.from_schema(i, exclude_root: true)
+      hash['person']['first_name'].should == 'Pit'
+    end
   end
 
   context 'with plain nested values' do

@@ -1,0 +1,15 @@
+{
+  "type":"object",
+  "title":"test_anyOf_object",
+  "name":"any_of_definition",
+  "description":"test_object parsing of nested anyOf object definition",
+  "properties": {
+    "person": {
+      "type" : "object",
+      "anyOf" : [
+       { "$ref" : "./client.json#"},
+       { "$ref" : "./contact.json#"}
+      ]
+    }
+  }
+}
