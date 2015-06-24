@@ -91,8 +91,6 @@ module SchemaTools
             conv_val = nil
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
-
-            #field_props = field_properties_for(key)
             field_props = all_properties(schema.to_h)[key]
             field_type = field_props['type']
             unless val.nil?
