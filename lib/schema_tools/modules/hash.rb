@@ -6,7 +6,7 @@ require 'active_support/core_ext/string/inflections'
 module SchemaTools
   module Modules
     module Hash
-
+      include SchemaTools::Modules::ObjectProperties
       # Create a Hash with the available (api)object attributes defined in the
       # according schema properties. This is the meat of the
       # object-to-api-markup workflow
@@ -73,19 +73,9 @@ module SchemaTools
       def parse_properties(obj, schema, opts)
         # only allow fields for first level object.
         # TODO collect . dot separated field names and pass them on to the recursive calls e.g nested object, ary
-        fields = opts.delete(:fields)
-        data = assign_data_properties(obj, schema['properties'], opts, fields)
-        ['oneOf', 'allOf', 'anyOf'].each do |sub_node|
-          (schema[sub_node] || []).each do |sub_schema|
-            data.merge!(assign_data_properties(obj, sub_schema, opts, fields))
-          end
-        end
-        data
-      end
-
-      def assign_data_properties(obj, sub_schema, opts, fields)
         data = {}
-        sub_schema.each do |field, prop|
+        fields = opts.delete(:fields)
+        all_properties(schema.to_h).each do |field, prop|
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
             # ensure the nested object gets its own class name
@@ -186,21 +176,14 @@ module SchemaTools
       # @param [Hash] opts to_schema options
       # @return [Array<Hash{String=>String}>]
       def parse_object(obj, field, prop, opts)
-        res = parse_properties_for_object(obj, field, prop, opts)
-        ['oneOf', 'anyOf', 'allOf'].each do |sub_node|
-          res.merge!(parse_properties_for_object(obj, field, prop[sub_node], opts)) if prop[sub_node]
-        end
-      end
-
-      def parse_properties_for_object(obj, field, prop, opts)
         rel_obj = obj.public_send( field )
         res = if prop['properties'].present?
                 opts[:schema] = prop
                 from_schema(rel_obj, opts)
-              elsif prop['oneOf'] || prop['anyOf'] || prop['allOf']
+              elsif PROPERTY_CONTAINERS.any? { |container| prop[container] }
                 # auto-detects which schema to use depending on the rel_object type
                 # Simpler than detecting the object type or $ref to use inside the
-                # oneOf array
+                # oneOf, allOf or anyOf array
                 from_schema(rel_obj, opts)
               elsif prop['properties'].blank?
                 rel_obj

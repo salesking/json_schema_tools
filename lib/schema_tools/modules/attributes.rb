@@ -25,6 +25,7 @@ module SchemaTools
       end
 
       module ClassMethods
+      include SchemaTools::Modules::ObjectProperties
 
         # @param [Symbol|String] schema name
         # @param [Hash<Symbol|String>] opts
@@ -38,17 +39,12 @@ module SchemaTools
           self.schema= reader.read(schema_name, schema_location)
           self.schema_name(schema_name)
           # make getter / setter methods
-          define_methods(schema[:properties])
-          ['oneOf', 'allOf', 'anyOf'].each do |subNode|
-            (schema[subNode] || []).each { |node| define_methods(node) } if self.schema[subNode]
-          end
+          all_properties(schema.to_h).each { |key, property| define_methods(key, property) }
         end
 
-        def define_methods(node)
-          node.each do |key, prop|
-            define_method(key) { schema_attrs[key] }
-            define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop['readOnly']
-          end
+        def define_methods(key, prop)
+          define_method(key) { schema_attrs[key] }
+          define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop['readOnly']
         end
 
 
@@ -95,7 +91,9 @@ module SchemaTools
             conv_val = nil
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
-            field_props = self.schema['properties']["#{key}"]
+
+            #field_props = field_properties_for(key)
+            field_props = all_properties(schema.to_h)[key]
             field_type = field_props['type']
             unless val.nil?
               case field_type
