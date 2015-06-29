@@ -75,7 +75,7 @@ module SchemaTools
         # TODO collect . dot separated field names and pass them on to the recursive calls e.g nested object, ary
         fields = opts.delete(:fields)
         data = {}
-        all_properties(schema.to_h).each do |field, prop|
+        all_properties(schema).each do |field, prop|
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
             # ensure the nested object gets its own class name
