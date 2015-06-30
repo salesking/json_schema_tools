@@ -7,10 +7,10 @@ module SchemaTools
       ONEOF = 'oneOf'
       PROPERTY_CONTAINERS = [ PROPERTIES, ALLOF, ANYOF, ONEOF ]
 
-      def all_properties(schema_hash, properties_hash = ActiveSupport::HashWithIndifferentAccess.new)
+      def all_properties(schema_hash)
         return schema_hash unless PROPERTY_CONTAINERS.any? { |container| schema_hash[container] }
 
-        PROPERTY_CONTAINERS.reduce(properties_hash) do |properties, container|
+        PROPERTY_CONTAINERS.reduce(ActiveSupport::HashWithIndifferentAccess.new) do |properties, container|
           if schema_hash[container]
             if schema_hash[container].kind_of?(Array)
               properties.merge!(parse_sub_schemas(schema_hash[container]))
