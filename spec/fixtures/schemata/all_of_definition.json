@@ -4,6 +4,7 @@
   "name":"all_of_definition",
   "description":"test_object parsing of nested allOf object definition",
   "properties": {
+    "all_of_schema" : { "type" : "string" },
     "person": {
       "type" : "object",
       "allOf" : [

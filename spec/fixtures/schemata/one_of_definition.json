@@ -4,6 +4,7 @@
   "name":"one_of_definition",
   "description":"test_object parsing of nested oneOf object definition",
   "properties": {
+    "one_of_schema" : { "type" : "string" },
     "person": {
       "type" : "object",
       "oneOf" : [

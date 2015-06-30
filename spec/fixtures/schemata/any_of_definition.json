@@ -4,6 +4,7 @@
   "name":"any_of_definition",
   "description":"test_object parsing of nested anyOf object definition",
   "properties": {
+    "any_of_schema" : { "type" : "string" },
     "person": {
       "type" : "object",
       "anyOf" : [
