@@ -6,7 +6,7 @@ require 'active_support/core_ext/string/inflections'
 module SchemaTools
   module Modules
     module Hash
-
+      include SchemaTools::Modules::ObjectProperties
       # Create a Hash with the available (api)object attributes defined in the
       # according schema properties. This is the meat of the
       # object-to-api-markup workflow
@@ -75,7 +75,7 @@ module SchemaTools
         # TODO collect . dot separated field names and pass them on to the recursive calls e.g nested object, ary
         fields = opts.delete(:fields)
         data = {}
-        schema['properties'].each do |field, prop|
+        all_properties(schema).each do |field, prop|
           next if fields && !fields.include?(field)
           if prop['type'] == 'array'
             # ensure the nested object gets its own class name
@@ -180,10 +180,10 @@ module SchemaTools
         res = if prop['properties'].present?
                 opts[:schema] = prop
                 from_schema(rel_obj, opts)
-              elsif prop['oneOf']
+              elsif PROPERTY_CONTAINERS.any? { |container| prop[container] }
                 # auto-detects which schema to use depending on the rel_object type
                 # Simpler than detecting the object type or $ref to use inside the
-                # oneOf array
+                # oneOf, allOf or anyOf array
                 from_schema(rel_obj, opts)
               elsif prop['properties'].blank?
                 rel_obj

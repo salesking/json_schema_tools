@@ -16,7 +16,15 @@ class Contact
 end
 
 class OneOfDefinition
-  attr_accessor :person
+  attr_accessor :person, :one_of_schema, :all_of_schema, :any_of_schema
+end
+
+class AnyOfDefinition
+  attr_accessor :person, :one_of_schema, :all_of_schema, :any_of_schema
+end
+
+class AllOfDefinition
+  attr_accessor :person, :one_of_schema, :all_of_schema, :any_of_schema
 end
 
 # see fixtures/lead.json
@@ -206,17 +214,55 @@ describe SchemaTools::Hash do
       hash['work_address'].should == {"city"=>"Cologne", "zip"=>"50733"}
     end
 
-    it 'has nested oneOf type object ' do
-      contact = Contact.new
-      contact.first_name = 'Pit'
+    context 'with a oneOf, anyOf or allOf node in the schema' do
+      let(:contact) { Contact.new.tap { |contact| contact.first_name = 'Pit' } }
+      subject(:hash) { SchemaTools::Hash.from_schema(schema_definition) }
 
-      i = OneOfDefinition.new
-      i.person = contact
+      context 'with a oneOf node in the schema' do
+        let(:schema_definition) { OneOfDefinition.new }
+        before do
+          schema_definition.person = contact
+          schema_definition.one_of_schema = true
+          schema_definition.all_of_schema = true
+          schema_definition.any_of_schema = true
+        end
 
-      hash = SchemaTools::Hash.from_schema(i, exclude_root: true)
-      hash['person']['first_name'].should == 'Pit'
+        specify { expect(hash['person']['first_name']).to eq 'Pit' }
+        specify { expect(hash['one_of_schema']).to eq 'true' }
+        specify { expect(hash['all_of_schema']).to be nil }
+        specify { expect(hash['any_of_schema']).to be nil }
+      end
+
+      context 'with a anyOf node in the schema' do
+        let(:schema_definition) { AnyOfDefinition.new }
+        before do
+          schema_definition.person = contact
+          schema_definition.one_of_schema = true
+          schema_definition.all_of_schema = true
+          schema_definition.any_of_schema = true
+        end
+
+        specify { expect(hash['person']['first_name']).to eq 'Pit' }
+        specify { expect(hash['one_of_schema']).to be nil }
+        specify { expect(hash['all_of_schema']).to be nil }
+        specify { expect(hash['any_of_schema']).to eq 'true' }
+      end
+
+      context 'with a allOf node in the schema' do
+        let(:schema_definition) { AllOfDefinition.new }
+        before do
+          schema_definition.person = contact
+          schema_definition.one_of_schema = true
+          schema_definition.all_of_schema = true
+          schema_definition.any_of_schema = true
+        end
+
+        specify { expect(hash['person']['first_name']).to eq 'Pit' }
+        specify { expect(hash['one_of_schema']).to be nil }
+        specify { expect(hash['all_of_schema']).to eq 'true' }
+        specify { expect(hash['any_of_schema']).to be nil }
+      end
     end
-
   end
 
   context 'with plain nested values' do
@@ -242,7 +288,6 @@ describe SchemaTools::Hash do
       @hash['conversion']['from'].should == lead.conversion.from
       @hash['conversion']['to'].should == lead.conversion.to
     end
-
   end
 
   context 'with links' do
