@@ -25,7 +25,7 @@ module SchemaTools
       end
 
       module ClassMethods
-      include SchemaTools::Modules::ObjectProperties
+        include SchemaTools::Modules::ObjectProperties
 
         # @param [Symbol|String] schema name
         # @param [Hash<Symbol|String>] opts
@@ -126,22 +126,30 @@ module SchemaTools
           elsif field_format == 'date-time'
             Time.parse(value) # vs Time.strptime
           else
-           value.to_s
+            value.to_s
           end
         end
 
         def process_object_type(field_name, value)
-          if nested_class(field_name)
-            nested_class(field_name).from_hash(value)
+          field_class =  nested_class(field_name.to_s.singularize)
+
+          if field_class
+            value.map do |element|
+              klass = field_class.respond_to?(:class_for) ? field_class.class_for(element) : field_class
+              klass.from_hash(element)
+            end
           else
             value
           end
         end
 
         def process_array_type(field_name, value)
-          if nested_class(field_name.to_s.singularize)
+          field_class =  nested_class(field_name.to_s.singularize)
+
+          if field_class
             value.map do |element|
-              nested_class(field_name.to_s.singularize).from_hash(element)
+              klass = field_class.respond_to?(:class_for) ? field_class.class_for(element) : field_class
+              klass.from_hash(element)
             end
           else
             value
