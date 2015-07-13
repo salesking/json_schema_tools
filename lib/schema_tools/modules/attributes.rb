@@ -25,6 +25,7 @@ module SchemaTools
       end
 
       module ClassMethods
+        include SchemaTools::Modules::ObjectProperties
 
         # @param [Symbol|String] schema name
         # @param [Hash<Symbol|String>] opts
@@ -38,7 +39,7 @@ module SchemaTools
           self.schema= reader.read(schema_name, schema_location)
           self.schema_name(schema_name)
           # make getter / setter methods
-          self.schema[:properties].each do |key, prop|
+          all_properties(schema.to_h).each do |key, prop|
             define_method(key) { schema_attrs[key] }
             define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop['readOnly']
           end
@@ -87,7 +88,7 @@ module SchemaTools
             conv_val = nil
             # set values to raw schema attributes, even if there are no setters
             # assuming this objects comes from a remote site
-            field_props = self.schema['properties']["#{key}"]
+            field_props = all_properties(schema.to_h)[key]
             field_type = field_props['type']
             unless val.nil?
               case field_type
@@ -125,22 +126,30 @@ module SchemaTools
           elsif field_format == 'date-time'
             Time.parse(value) # vs Time.strptime
           else
-           value.to_s
+            value.to_s
           end
         end
 
         def process_object_type(field_name, value)
-          if nested_class(field_name)
-            nested_class(field_name).from_hash(value)
+          field_class =  nested_class(field_name.to_s.singularize)
+
+          if field_class
+            value.map do |element|
+              klass = field_class.respond_to?(:class_for) ? field_class.class_for(element) : field_class
+              klass.from_hash(element)
+            end
           else
             value
           end
         end
 
         def process_array_type(field_name, value)
-          if nested_class(field_name.to_s.singularize)
+          field_class =  nested_class(field_name.to_s.singularize)
+
+          if field_class
             value.map do |element|
-              nested_class(field_name.to_s.singularize).from_hash(element)
+              klass = field_class.respond_to?(:class_for) ? field_class.class_for(element) : field_class
+              klass.from_hash(element)
             end
           else
             value
