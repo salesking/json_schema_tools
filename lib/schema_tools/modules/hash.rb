@@ -91,7 +91,12 @@ module SchemaTools
             conv_val = if raw_val.nil?
                          raw_val
                        elsif prop['type'] == 'string'  # rely on .to_s for format from date/datetime
-                         "#{raw_val}"
+                         case prop['format']
+                         when "date", "date-time"
+                          raw_val.iso8601
+                         else
+                          raw_val.to_s 
+                         end
                        elsif prop['type'] == 'integer'
                          raw_val.to_i
                        else # bool / number rely on .to_s in json lib

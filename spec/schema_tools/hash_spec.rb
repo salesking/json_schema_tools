@@ -5,7 +5,7 @@ require 'spec_helper'
 # json schema is derived from it
 ################################################################################
 class Client
-  attr_accessor :first_name, :id, :addresses, :work_address
+  attr_accessor :first_name, :id, :addresses, :work_address, :created_at
 end
 class Address
   attr_accessor :city, :zip
@@ -43,10 +43,14 @@ describe SchemaTools::Hash do
   context 'from_schema to hash conversion' do
 
     let(:contact){Contact.new}
+    let(:client){Client.new}
+
     before :each do
       contact.first_name = 'Peter'
       contact.last_name = 'Paul'
       contact.id = 'SomeID'
+
+      client.created_at = Time.now
     end
     after :each do
       SchemaTools::Reader.registry_reset
@@ -55,6 +59,11 @@ describe SchemaTools::Hash do
     it 'should return hash' do
       hash = SchemaTools::Hash.from_schema(contact)
       hash['last_name'].should == 'Paul'
+    end
+
+    it 'should format date-time fields to iso8601' do
+      hash = SchemaTools::Hash.from_schema(client)
+      hash['created_at'].should == client.created_at.iso8601
     end
 
     it 'keeps nil values' do
