@@ -19,6 +19,7 @@ module SchemaTools
       # Runs all the validations within the specified context.
       # @return [Boolean] true if  no errors are found, false otherwise
       def valid?
+        # TODO validate nested objects
         output = super
         errors.empty? && output
       end
@@ -40,6 +41,7 @@ module SchemaTools
             validates_numericality_of key, validate_number_opts(val, is_required) if val['type'] == 'number' || val['type'] == 'integer'
             #TODO array minItems, max unique,  null, string
             # format: date-time, regex color style, email,uri,  ..
+            #TODO validate nested objects, ary of nested objs
           end
         end
 
