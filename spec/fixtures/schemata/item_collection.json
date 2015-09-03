@@ -1,10 +1,13 @@
 {
   "type" : "object",
   "properties" : {
-    "items" : {
+    "line_items" : {
       "type" : "array",
-      "properties" : {
-        "$ref" : "item.json#properties"
+      "items" : {
+        "type" : "object",
+        "properties":{
+          "$ref": "line_item.json#properties"
+        }
       }
     }
   }

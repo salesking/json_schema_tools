@@ -37,9 +37,10 @@ module SchemaTools
 
           self.schema= reader.read(schema_name, schema_location)
           self.schema_name(schema_name)
-          # make getter / setter methods
+          # create getter/setter methods, reading/writing to schema_attrs hash
           self.schema[:properties].each do |key, prop|
             define_method(key) { schema_attrs[key] }
+            # TODO convert string values to int/date/datetime?? or use from_hash for it?
             define_method("#{key}=") { |value| schema_attrs[key] = value } unless prop['readOnly']
           end
         end
@@ -75,7 +76,8 @@ module SchemaTools
         #
         # @param [Hash{String=>Mixed}] json string or hash
         # @param [Object] obj if you want to update an existing objects
-        # attributes. e.g during an update
+        # attributes. e.g during an update beware that this also updates read-only
+        # properties
         def from_hash(hash, obj=nil)
           # test if hash is nested and shift up
           if hash.length == 1 && hash["#{schema_name}"]
@@ -98,7 +100,7 @@ module SchemaTools
               when 'object'
                 conv_val = process_object_type(key, val)
               when 'array'
-                conv_val = process_array_type(key, val)
+                conv_val = process_array_type(key, val, obj)
               else
                 conv_val = val
               end
@@ -137,14 +139,34 @@ module SchemaTools
           end
         end
 
-        def process_array_type(field_name, value)
-          if nested_class(field_name.to_s.singularize)
-            value.map do |element|
-              nested_class(field_name.to_s.singularize).from_hash(element)
+        # @param [Symbol|String] field_name
+        # @param [Array<Hash>] values
+        # @param [Object] field_name
+        # @param [Object] obj the current object containing the nested values
+        def process_array_type(field_name, values, obj)
+          nested_klass = nested_class(field_name.to_s.singularize)
+          return values unless nested_klass
+          res = []
+          # check for existing nested objects and update them
+          if schema['properties']["#{field_name}"]['items'] && schema['properties']["#{field_name}"]['items']['type'] == 'object'
+            # detect an update of existing which have an ID
+            existing_objs = obj.public_send(field_name)
+            values.each do |new_hash|
+              if new_hash['id'].present? || new_hash[:id].present?
+                # update existing if found
+                existing_obj = existing_objs && existing_objs.detect{|i| "#{i.id}" == "#{new_hash[:id] || new_hash['id']}" }
+                # existing_obj can be nil in this case a new object is created
+                res << nested_klass.from_hash(new_hash, existing_obj)
+              else # create new
+                res << nested_klass.from_hash(new_hash)
+              end
             end
-          else
-            value
+          else #create new
+            values.map do |element|
+              res << nested_klass.from_hash(element)
+            end
           end
+          res
         end
 
         def nested_class(field_name)

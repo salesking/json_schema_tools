@@ -25,9 +25,9 @@ class ItemCollection
   has_schema_attrs :item_collection
 end
 
-class Item
+class LineItem
   include SchemaTools::Modules::Attributes
-  has_schema_attrs :item
+  has_schema_attrs :line_item
 end
 
 describe SchemaTools::Modules::Attributes do
@@ -142,9 +142,9 @@ describe SchemaTools::Modules::Attributes do
     end
 
     it 'makes nested array of objects if there are nested arrays of hashes' do
-      hash = {items: [{}, {}]}
+      hash = {line_items: [{}, {}]}
       obj = ItemCollection.from_hash(hash)
-      expect(obj.items.first).to be_an_instance_of(Item)
+      expect(obj.line_items.first).to be_an_instance_of(LineItem)
     end
 
     it 'updates an object' do
@@ -155,6 +155,37 @@ describe SchemaTools::Modules::Attributes do
       TestContact.from_hash({first_name: 'Paul', last_name: 'Hulk'}, obj)
       expect(obj.first_name).to eq 'Paul'
       expect(obj.last_name).to eq 'Hulk'
+    end
+
+    it 'updates nested array of objects' do
+      obj = ItemCollection.from_hash(
+        {
+          line_items:[
+            {id: 1},
+            {id: '2'}
+        ]
+        } )
+      expect(obj.line_items[0].id).to eq "1"
+
+      update_params = {
+        line_items:[
+          {
+            id: 1,
+           name: 'Item one'
+          },
+          {
+            id: '2',
+            name: 'Item two'
+          },
+          {
+            name: 'New item'
+          },
+        ]
+      }
+      ItemCollection.from_hash( update_params, obj)
+      expect(obj.line_items[0].name).to eq 'Item one'
+      expect(obj.line_items[1].name).to eq 'Item two'
+      expect(obj.line_items[2].name).to eq 'New item'
     end
 
   end
