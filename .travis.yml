@@ -4,5 +4,5 @@ rvm:
 gemfile:
   - Gemfile
 env:
-- 'RAILS_VERSION=4'
+- 'RAILS_VERSION=4.2'
 - 'RAILS_VERSION=3.2.13'

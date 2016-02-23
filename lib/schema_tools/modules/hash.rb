@@ -95,7 +95,7 @@ module SchemaTools
                          when "date", "date-time"
                           raw_val.iso8601
                          else
-                          raw_val.to_s 
+                          raw_val.to_s
                          end
                        elsif prop['type'] == 'integer'
                          raw_val.to_i
