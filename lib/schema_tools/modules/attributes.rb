@@ -38,6 +38,7 @@ module SchemaTools
           self.schema= reader.read(schema_name, schema_location)
           self.schema_name(schema_name)
           # create getter/setter methods, reading/writing to schema_attrs hash
+          # TODO how to handle already defined methods: Warn, raise, ignore ?
           self.schema[:properties].each do |key, prop|
             define_method(key) { schema_attrs[key] }
             # TODO convert string values to int/date/datetime?? or use from_hash for it?
