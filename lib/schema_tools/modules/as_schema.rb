@@ -9,7 +9,7 @@ module SchemaTools
       # @param [Hash{Symbol=>Mixed}] opts passed on to #SchemaTools::Hash.from_schema
       # @return [String] json
       def as_schema_json(opts={})
-        ActiveSupport::JSON.encode(as_schema_hash(opts))
+        JSON.generate(as_schema_hash(opts))
       end
 
       # The object as hash with fields detected from its schema.
@@ -26,7 +26,6 @@ module SchemaTools
         end
         SchemaTools::Hash.from_schema(self, opts)
       end
-      def as_hash(opts={}) as_schema_hash(opts); end
 
       module ClassMethods
         # Get or set the schema name used

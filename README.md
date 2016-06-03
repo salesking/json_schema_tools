@@ -21,11 +21,11 @@ Hook the gem into your app
 
     gem 'json_schema_tools'
 
-Quickstart assuming you have schema definitions [like those](https://github.com/salesking/sk_api_schema/tree/master/json/v1.0) in place.
+Quickstart assuming you have schema definitions [like those](https://github.com/salesking/sk_api_schema/tree/develop/json/v2.0) in place.
 
 ```ruby
 # add schema directory to the search path
-SchemaTools.schema_path = '/path/to/schema-json-files'
+SchemaTools.schema_path = '/path/to/json-schema-files'
 # blow up classes for each schema file
 SchemaTools::KlassFactory.build
 
@@ -46,7 +46,7 @@ cached into a registry (global or per reader object). Globals are initialized
 once e.g on program start. A reader object allows to handle schemata in dynamic
 ways.
 
-When using the global SchemaTools reader simply provide a base path to the
+When using the global SchemaTools::Reader simply provide a base path to the
 schema files and you are done.
 
 ```ruby
@@ -276,7 +276,7 @@ be defined.
 ```ruby
 module SalesKing; end
 SchemaTools::KlassFactory.build namespace: SalesKing
-client = SalesKing::Client.new
+contact = SalesKing::Contact.new
 ```
 
 Add a custom schema reader most likely useful in conjunction with a custom path
@@ -292,6 +292,7 @@ Provides some basic support for JSON Pointer. JSON Pointer expressions must refe
 files and must contain a fragment identifier, i.e.
 
      ./some_include.json#properties
+     ./some_include.json#
 
 is a resolvable pointer, while
 
@@ -302,14 +303,15 @@ is not.
 
 ## Real world examples
 
-* [DocTag ruby gem](https://github.com/docTag/doctag_rb) and [DocTag json-schema](https://github.com/docTag/doctag_json_schema)
 * [SalesKing json schema](https://github.com/salesking/sk_api_schema)
-* [HappyPdf json schema](https://github.com/happyPDF/happypdf_json_schema) .. api gem will follow
+* [FidorBank json schema](https://github.com/fidor/fidor_schema)
+* [HappyPdf json schema](https://github.com/happyPDF/happypdf_json_schema)
+* [DocTag ruby gem](https://github.com/docTag/doctag_rb) and [DocTag json-schema](https://github.com/docTag/doctag_json_schema)
 * .. Your UseCase here
 
 ## Test
 
-Only runs on Ruby 1.9 and by default uses most recent ActiveModel version (>3).
+Only runs on Ruby 1.9+ and by default uses most recent ActiveModel version (>3).
 
     bundle install
     rake spec
@@ -324,8 +326,9 @@ Testing with different ActiveModel / ActiveSupport Versions:
 The RAILS_VERSION switch sets the version of the gems in the Gemfile and is only
 useful in test env.
 
+
 # Credits
 
 * [Andy Nicholson](https://github.com/anicholson)
 
-Copyright 2012-1013, Georg Leciejewski, MIT License
+Copyright 2012-2016, Georg Leciejewski, MIT License
